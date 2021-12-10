@@ -281,6 +281,11 @@ FixPCSign <-
     
     if (Mode == 'UseMeanExpressionKnownWeights'){
       
+      if(sum(!is.na(Wei))<1){
+        print("Not enough weights, PC will be oriented randomly")
+        return(1)
+      }
+      
       ToUse <- rep(TRUE, length(GeneScore))
       if (!is.null(Thr)) {
         ToUse <- abs(GeneScore) >= quantile(abs(GeneScore), Thr)
@@ -288,7 +293,7 @@ FixPCSign <-
       
       ExpMat <- scale(apply(ExpMat, 1, median), center = TRUE, scale = FALSE)[ToUse]
       
-      if(sum(GeneScore[ToUse]*Wei[ToUse]*ExpMat[ToUse]) > 0){
+      if(sum(GeneScore[ToUse]*Wei[ToUse]*ExpMat[ToUse], na.rm = TRUE) > 0){
         return(1)
       }
       else{
