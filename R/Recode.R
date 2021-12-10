@@ -1,71 +1,71 @@
 #' Perform ROMA on a datasets
 #'
-#' @param ExpressionMatrix matrix, a numeric matrix containing the gene expression information. Columns indicate samples and rows indicated genes.
+#' @param ExpressionMatrix matrix, a numeric matrix containing the gene expression information. Columns indicate samples and rows indicate genes.
 #' @param ModuleList list, gene module list
-#' @param UseWeigths logical, should the weigths be used for PCA calculation?
+#' @param UseWeigths logical, should the weights be used for PCA calculation?
 #' @param ExpFilter logical, should the samples be filtered?
 #' @param MinGenes integer, the minimum number of genes reported by a module available in the expression matrix to process the module
 #' @param MaxGenes integer, the maximum number of genes reported by a module available in the expression matrix to process the module
-#' @param nSamples integer, the number of randomized gene sampled (per module)
-#' @param ApproxSamples integer between 0 and 100 the approximation parameter to reuse samples. This is the minimal percentage variation to reuse samples.
-#' For example 5, means that samples re recalculated only if the number of genes in the geneset has increased by at least 5\%.
+#' @param nSamples integer, the number of randomized genes sampled (per module)
+#' @param ApproxSamples integer (between 0 and 100), the approximation parameter to reuse samples. This is the minimal percentage variation to reuse samples.
+#' For example, 5 means that samples are re recalculated only if the number of genes in the geneset has increased by at least 5\%.
 #' @param OutGeneNumber scalar, number of median-absolute-deviations away from median required for the total number of genes expressed in a sample to be called an outlier
-#' @param Ncomp iteger, number of principal components used to filter samples in the gene expression space
+#' @param Ncomp integer, number of principal components used to filter samples in the gene expression space
 #' @param OutGeneSpace scalar, number of median-absolute-deviations away from median required for in a sample to be called
 #' an outlier in the gene expression space. If set to NULL, the gene space filtering will not be performed.
-#' @param FixedCenter logical, should PCA with fixed center be used?
+#' @param FixedCenter logical, should PCA with fixed center be used ?
 #' @param GeneOutDetection character scalar, the algorithm used to filter genes in a module. Possible values are
 #' \itemize{
 #' \item 'L1OutVarPerc': percentage variation relative to the median variance explained supported by a leave one out approach
 #' \item 'L1OutVarDC': dendrogram clustering statistics on variance explained supported by a leave one out approach
-#' \item 'L1OutExpOut': number of median-absolute-deviations away from median explined variance
+#' \item 'L1OutExpOut': number of median-absolute-deviations away from median explained variance
 #' \item 'L1OutSdMean': Number of standard deviations away from the mean
 #' }
-#' The option "L1OutExpOut" requires the scater package to be installed.
+#' The option "L1OutExpOut" requires the scater package.
 #' @param GeneOutThr scalar, threshold used by gene filtering algorithm in the modules. It can represent maximum size of filtered cluster ("L1OutVarDC"),
 #' minimal percentage variation (L1OutVarPerc) or the number of median-absolute-deviations away from median ("L1OutExpOut")
 #' @param GeneSelMode character scalar, mode used to sample genes: all available genes ("All") or genes not present in the module ("Others")
 #' @param centerData logical, should the gene expression values be centered over the samples?
-#' @param MoreInfo logical, shuold detailed information on the computation by printed?
-#' @param PlotData logical, shuold debugging plots by produced ?
+#' @param MoreInfo logical, should detailed information on the computation be printed?
+#' @param PlotData logical, should debugging plots be produced ?
 #' @param SampleFilter logical, should outlier detection be applied to sampled data as well?
-#' @param PCADims integer, the number of PCA dimensions to compute. Should be >= 2. Note that, the value 1 is allowed,
+#' @param PCADims integer, the number of PCA dimensions to compute. Should be >= 2. Note that the value 1 is allowed,
 #' but is not advisable under normal circumstances.
 #' Larger values decrease the error in the estimation of the explained variance but increase the computation time.
-#' @param DefaultWeight integer scalar, the default weigth to us if no weith is specified by the modile file and an algorithm requiring weigths is used
-#' @param PCSignMode characrter scalar, the modality to use to determine the direction of the principal components. The following options are currentlhy available:
+#' @param DefaultWeight integer scalar, the default weight to us if no weight is specified by the modole file and an algorithm requiring weights is used
+#' @param PCSignMode character scalar, the modality to use to determine the direction of the principal components. The following options are currently available:
 #' \itemize{
 #' \item 'none' (The direction is chosen at random)
-#' \item 'PreferActivation': the direction is chosen in such a way that the sum of the projection is positive
-#' \item 'UseAllWeights': as 'PreferActivation', but the projections are multiplied by the weigths, missing weights are set to DefaultWeight
-#' \item 'UseKnownWeights': as 'UseAllWeights', but missing weigth are set to 0
-#' \item 'CorrelateAllWeightsByGene': the direction is chosen in such a way to maximise the positive correlation between the expression of genes with a positive (negative) weights
+#' \item 'PreferActivation': the direction is chosen in such a way that the sum of the projections is positive
+#' \item 'UseAllWeights': as 'PreferActivation', but the projections are multiplied by the weights, missing weights are set to DefaultWeight
+#' \item 'UseKnownWeights': as 'UseAllWeights', but missing weights are set to 0
+#' \item 'CorrelateAllWeightsByGene': the direction is chosen in such a way as to maximize the positive correlation between the expression of genes with positive (negative) weights
 #' and the (reversed) PC projections, missing weights are set to DefaultWeight
 #' \item 'CorrelateKnownWeightsByGene': as 'CorrelateAllWeights', but missing weights are set to 0
-#' \item 'CorrelateAllWeightsBySample': the direction is chosen in such a way to maximise the positive correlation between the expression of genes and the PC corrected weigth
-#' (i.e., PC weigths are multiplied by gene weigths), missing weights are set to DefaultWeight
+#' \item 'CorrelateAllWeightsBySample': the direction is chosen in such a way as to maximize the positive correlation between the expression of genes and the PC corrected weight
+#' (i.e., PC weights are multiplied by gene weights), missing weights are set to DefaultWeight
 #' \item 'CorrelateKnownWeightsBySample': as 'CorrelateAllWeightsBySample', but missing weights are set to 0
 #' }
 #' If 'CorrelateAllWeights', 'CorrelateKnownWeights', 'CorrelateAllWeightsBySample' or 'CorrelateKnownWeightsBySample' are used
-#' and GroupPCSign is TRUE, the correltions will be computed on the groups defined by Grouping.
+#' and GroupPCSign is TRUE, the correlations will be computed on the groups defined by Grouping.
 #' @param PCSignThr numeric scalar, a quantile threshold to limit the projections (or weights) to use, e.g., if equal to .9
-#' only the 10\% of genes with the largest projection (or weights) in absolute value will be considered.
-#' @param UseParallel boolean, shuold a parallel environment be used? Note that using a parallel environment will increase the memorey usage as a
+#' only the 10\% of genes with the largest projections (or weights) in terms of absolute value will be considered.
+#' @param UseParallel boolean, should a parallel environment be used ? Note that using a parallel environment will increase the memory usage as a
 #' copy of the gene expression matrix is needed for each core
 #' @param nCores integer, the number of cores to use if UseParallel is TRUE. Set to NULL for auto-detection
-#' @param ClusType string, the cluster type to use. The default value ("PSOCK") should be available on most systems, unix-like environments also support the "FORK",
+#' @param ClusType string, the cluster type to use. The default value ("PSOCK") should be available on most systems, unix-like environments also support "FORK",
 #' which should be faster.
-#' @param SamplingGeneWeights named vector, numeric. Weigth so use when correcting the sign of the PC for sampled data.
-#' @param FillNAMethod names list, additional parameters to pass to the mice function
-#' @param Grouping named vector, the groups associated with the sample.
-#' @param FullSampleInfo boolean, should full PC information be computed and saved for all the randomised genesets?
-#' @param GroupPCSign boolean, should grouping information to be used to orient PCs?
+#' @param SamplingGeneWeights named vector, numeric. Weight to use when correcting the sign of the PC for sampled data.
+#' @param FillNAMethod name list, additional parameters to pass to the mice function
+#' @param Grouping name vector, the groups associated with the sample.
+#' @param FullSampleInfo boolean, should full PC information be computed and saved for all randomized genesets?
+#' @param GroupPCSign boolean, should grouping information be used to orient PCs?
 #' @param CorMethod character string indicating which correlation coefficient is to be used
-#' for orienting the principal components. Can be "pearson", "kendall", or "spearman".
+#' to orient the principal components. Can be "pearson", "kendall", or "spearman".
 #' @param PCAType character string, the type of PCA to perform. It can be "DimensionsAreGenes" or "DimensionsAreSamples"
-#' @param SuppressWarning boolean, should warnings be displayed? This option well be ignored in non-interactive sessions.
-#' @param ShowParallelPB boolean, should the progress bas be displayed when using parallel processing. Note that the
-#' progress bar is diaplayed via the pbapply package. This may slow donwn the computation, expecially with FORK clusters.
+#' @param SuppressWarning boolean, should warnings be displayed? This option can be ignored in non-interactive sessions.
+#' @param ShowParallelPB boolean, should the progress bar be displayed when using parallel processing ? Note that the
+#' progress bar is displayed via the pbapply package. This may slow down the computation, especially when using FORK clusters.
 #'
 #' @return
 #' @export
@@ -167,7 +167,7 @@ rRoma.R <- function(ExpressionMatrix,
   }
 
   if(any(AllGenesMatrix[duplicated(AllGenesMatrix)] %in% AllGenesModule)){
-    stop("Module gene are not unique in the matrix. Impossible to proceed.")
+    stop("Module genes are not unique in the matrix. Impossible to proceed.")
   }
 
   if(any(duplicated(AllGenesMatrix)) & interactive()){
@@ -280,7 +280,7 @@ rRoma.R <- function(ExpressionMatrix,
     attr(ExpressionMatrix, "scaled:center") <- NULL
     ModulePCACenter = FALSE
     if(PCAType == "DimensionsAreGenes"){
-      print("Fixed center is not currently implemented with PCAType = 'DimensionsAreGenes'. It will be changed to 'DimensionsAreGenes'")
+      print("Fixed center is not currently implemented with PCAType = 'DimensionsAreGenes'. It will be changed to 'DimensionsAreSamples'")
     }
     PCAType <- "DimensionsAreSamples"
   } else {
@@ -425,12 +425,12 @@ rRoma.R <- function(ExpressionMatrix,
     # Computing PC on the unfiltered data (only for reference)
 
     if(UseWeigths){
-      print("Using weigths")
+      print("Using weights")
       Correction <- ModuleList[[i]]$Weigths
       names(Correction) <- CompatibleGenes
       Correction[!is.finite(Correction)] <- DefaultWeight
     } else {
-      print("Not using weigths for PCA computation")
+      print("Not using weights for PCA computation")
       Correction <- rep(1, length(CompatibleGenes))
       names(Correction) <- CompatibleGenes
     }
@@ -491,7 +491,7 @@ rRoma.R <- function(ExpressionMatrix,
     print(paste("Median expression (centered/weighted):", median(BaseMatrix)))
 
     print(paste("Previous sample size:", OldSamplesLen))
-    print(paste("Next sample size:", length(CompatibleGenes)))
+    print(paste("Current sample size:", length(CompatibleGenes)))
 
     # Comparison with sample genesets
     if(nSamples > 0){
@@ -516,7 +516,7 @@ rRoma.R <- function(ExpressionMatrix,
                                              CompatibleGenes = Gl, ExpressionData = ExpressionMatrix[Gl, ], PlotData = FALSE,
                                              ModuleName = '', PrintInfo = FALSE, PCAType = PCAType)
             if(length(SampleSelGenes)<PCADims){
-              warning(paste("Size of filtered sample geneset too small (",  length(SampleSelGenes), "). This may cause inconsitencies. Increase MinGenes or GeneOutThr to prevent the problem"))
+              warning(paste("Size of filtered sample geneset too small (",  length(SampleSelGenes), "). This may cause inconsitencies. Increase MinGenes or GeneOutThr to prevent the problem from happening"))
             }
           } else {
             SampleSelGenes <- Gl
@@ -524,7 +524,7 @@ rRoma.R <- function(ExpressionMatrix,
 
           if(length(SampleSelGenes) <= 1){
             SampMedian <- median(ExpressionMatrix[SampleSelGenes])
-            warning(paste("Size of filtered sample geneset extremely small (",  length(SampleSelGenes), "). This may cause inconsitencies. Increase MinGenes or GeneOutThr to prevent the problem"))
+            warning(paste("Size of filtered sample geneset extremely small (",  length(SampleSelGenes), "). This may cause inconsitencies. Increase MinGenes or GeneOutThr to prevent the problem from happening"))
             return(list("ExpVar"=c(1, rep(0, PCADims - 1)), "MedianExp"= SampMedian))
           }
 
