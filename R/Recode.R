@@ -2,7 +2,7 @@
 #'
 #' @param ExpressionMatrix matrix, a numeric matrix containing the gene expression information. Columns indicate samples and rows indicate genes.
 #' @param ModuleList list, gene module list
-#' @param UseWeigths logical, should the weights be used for PCA calculation?
+#' @param UseWeights logical, should the weights be used for PCA calculation?
 #' @param ExpFilter logical, should the samples be filtered?
 #' @param MinGenes integer, the minimum number of genes reported by a module available in the expression matrix to process the module
 #' @param MaxGenes integer, the maximum number of genes reported by a module available in the expression matrix to process the module
@@ -75,7 +75,7 @@ rRoma.R <- function(ExpressionMatrix,
                     ModuleList,
                     centerData = TRUE,
                     ExpFilter=FALSE,
-                    UseWeigths = FALSE,
+                    UseWeights = FALSE,
                     DefaultWeight = 1,
                     MinGenes = 10,
                     MaxGenes = 1000,
@@ -178,14 +178,14 @@ rRoma.R <- function(ExpressionMatrix,
   }
 
   if(FullSampleInfo & interactive()){
-    print("PC projections and weigths will be computed and reoriented for sampled genesets. This is potentially very time consuming.")
+    print("PC projections and weights will be computed and reoriented for sampled genesets. This is potentially very time consuming.")
     if(!SuppressWarning){
       Ans <- readline("Are you sure you want to do that? (y/n)")
       if(Ans != "y" & Ans != "Y"){
         FullSampleInfo <- FALSE
-        print("PC projections and weigths will NOT be computed and reoriented for sampled genesets.")
+        print("PC projections and weights will NOT be computed and reoriented for sampled genesets.")
       } else {
-        print("PC projections and weigths will be computed and reoriented for sampled genesets.")
+        print("PC projections and weights will be computed and reoriented for sampled genesets.")
       }
     }
   }
@@ -293,7 +293,7 @@ rRoma.R <- function(ExpressionMatrix,
   ModuleMatrix <- NULL
 
   SampleMatrix <- NULL
-  WeigthList <- list()
+  WeightList <- list()
 
   PVVectMat <- NULL
 
@@ -309,7 +309,7 @@ rRoma.R <- function(ExpressionMatrix,
     nGenes[i] <- sum(Preserve)
     
     ModuleList[[i]]$Genes <- ModuleList[[i]]$Genes[Preserve]
-    ModuleList[[i]]$Weigths <- ModuleList[[i]]$Weigths[Preserve]
+    ModuleList[[i]]$Weights <- ModuleList[[i]]$Weights[Preserve]
     
   }
 
@@ -424,9 +424,9 @@ rRoma.R <- function(ExpressionMatrix,
 
     # Computing PC on the unfiltered data (only for reference)
 
-    if(UseWeigths){
+    if(UseWeights){
       print("Using weights")
-      Correction <- ModuleList[[i]]$Weigths
+      Correction <- ModuleList[[i]]$Weights
       names(Correction) <- CompatibleGenes
       Correction[!is.finite(Correction)] <- DefaultWeight
     } else {
@@ -779,7 +779,7 @@ rRoma.R <- function(ExpressionMatrix,
     SampleScore1Unf <- SampleScore1
 
     CorrectSignUnf <- FixPCSign(GeneScore = GeneScore1, SampleScore = SampleScore1,
-                                Wei = ModuleList[[i]]$Weigths[ModuleList[[i]]$Genes %in% CompatibleGenes],
+                                Wei = ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% CompatibleGenes],
                              Mode = PCSignMode, DefWei = DefaultWeight, Thr = PCSignThr,
                              Grouping = GroupPCsVect, ExpMat = ExpMat, CorMethod = CorMethod)
 
@@ -802,7 +802,7 @@ rRoma.R <- function(ExpressionMatrix,
     }
 
     CorrectSign1 <- FixPCSign(GeneScore = GeneScore1, SampleScore = SampleScore1,
-                              Wei = ModuleList[[i]]$Weigths[ModuleList[[i]]$Genes %in% SelGenes],
+                              Wei = ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% SelGenes],
                              Mode = PCSignMode, DefWei = DefaultWeight, Thr = PCSignThr,
                              Grouping = GroupPCsVect, ExpMat = ExpMat, CorMethod = CorMethod)
 
@@ -820,7 +820,7 @@ rRoma.R <- function(ExpressionMatrix,
       }
 
       CorrectSign2 <- FixPCSign(GeneScore = GeneScore2, SampleScore = SampleScore2,
-                                Wei = ModuleList[[i]]$Weigths[ModuleList[[i]]$Genes %in% SelGenes],
+                                Wei = ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% SelGenes],
                                 Mode = PCSignMode, DefWei = DefaultWeight, Thr = PCSignThr,
                                 Grouping = GroupPCsVect, ExpMat = ExpMat, CorMethod = CorMethod)
 
@@ -854,7 +854,7 @@ rRoma.R <- function(ExpressionMatrix,
 
       }
 
-      WeiVect <- ModuleList[[i]]$Weigths[ModuleList[[i]]$Genes %in% SelGenes]
+      WeiVect <- ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% SelGenes]
       names(WeiVect) <- SelGenes
 
       if(PCSignMode %in% c('UseAllWeights', 'CorrelateAllWeightsBySample', 'CorrelateAllWeightsByGene')){
@@ -1041,7 +1041,7 @@ rRoma.R <- function(ExpressionMatrix,
 
     SampleMatrix <- rbind(SampleMatrix, SampleScore1 * CorrectSign1)
 
-    WeigthList[[length(WeigthList)+1]] <- GeneScore1 * CorrectSign1
+    WeightList[[length(WeightList)+1]] <- GeneScore1 * CorrectSign1
 
     ModuleSummary[[length(ModuleSummary)+1]] <-
       list(ModuleName = ModuleList[[i]]$Name,
@@ -1061,7 +1061,7 @@ rRoma.R <- function(ExpressionMatrix,
            SampleScoreUnf = SampleScore1Unf,
            GeneWeight = GeneScore1,
            GeneWeightUnf = GeneScore1Unf,
-           GMTWei = ModuleList[[i]]$Weigths[ModuleList[[i]]$Genes %in% SelGenes])
+           GMTWei = ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% SelGenes])
                                
 
   }
@@ -1100,7 +1100,7 @@ rRoma.R <- function(ExpressionMatrix,
 
 
   InputParList <- list(centerData = centerData, ExpFilter = ExpFilter, ModuleList = ModuleList,
-                       UseWeigths = UseWeigths, DefaultWeight = DefaultWeight, MinGenes = MinGenes,
+                       UseWeights = UseWeights, DefaultWeight = DefaultWeight, MinGenes = MinGenes,
                        MaxGenes = MaxGenes, ApproxSamples = ApproxSamples, nSamples = nSamples,
                        OutGeneNumber = OutGeneNumber, Ncomp = Ncomp, OutGeneSpace = OutGeneSpace,
                        FixedCenter = FixedCenter, GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr,
@@ -1115,11 +1115,11 @@ rRoma.R <- function(ExpressionMatrix,
     ReorderIdxs <- order(ModuleOrder[UsedModules])
 
     return(list(ModuleMatrix = ModuleMatrix[ReorderIdxs,], SampleMatrix = SampleMatrix[ReorderIdxs,], ModuleSummary = ModuleSummary[ReorderIdxs],
-                WeigthList = WeigthList[ReorderIdxs], PVVectMat = PVVectMat[ReorderIdxs,], OutLiersList = OutLiersList[ReorderIdxs],
+                WeightList = WeightList[ReorderIdxs], PVVectMat = PVVectMat[ReorderIdxs,], OutLiersList = OutLiersList[ReorderIdxs],
                 GeneCenters = GeneCenters, SampleCenters = SampleCenters, InputPars = InputParList))
   } else {
     return(list(ModuleMatrix = ModuleMatrix, SampleMatrix = SampleMatrix, ModuleSummary = ModuleSummary,
-               WeigthList = WeigthList, PVVectMat = PVVectMat, OutLiersList = OutLiersList,
+               WeightList = WeightList, PVVectMat = PVVectMat, OutLiersList = OutLiersList,
                GeneCenters = GeneCenters, SampleCenters = SampleCenters, InputPars = InputParList))
   }
 
