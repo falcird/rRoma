@@ -38,15 +38,15 @@ ReadGMTFile <- function(FileLocation, SearchString = NULL, Mode = "ANY") {
       
       GeneNames <- unlist(lapply(tGenes, "[[", 1))
       
-      Weigths <- rep(NA, length(GeneNames))
+      Weights <- rep(NA, length(GeneNames))
 
       if(any(lapply(tGenes, length) > 1)){
-        Weigths[lapply(tGenes, length) > 1] <- unlist(lapply(tGenes[lapply(tGenes, length) > 1], "[[", 2))
+        Weights[lapply(tGenes, length) > 1] <- unlist(lapply(tGenes[lapply(tGenes, length) > 1], "[[", 2))
       }
       
-      Weigths <- as.numeric(Weigths)
+      Weights <- as.numeric(Weights)
 
-      GeneList[[Idx]] <- list(Name = tLine[1], Desc = tLine[2], Genes = GeneNames, Weigths = Weigths)
+      GeneList[[Idx]] <- list(Name = tLine[1], Desc = tLine[2], Genes = GeneNames, Weights = Weights)
     }
     
   }
@@ -344,7 +344,7 @@ SelectFromInternalDB <- function(SearchString, BDName = "MsigDB", Version = NULL
 
 
 
-#' Infer weigths from expression data
+#' Infer weights from expression data
 #'
 #' @param ExpressionMatrix 
 #' @param ModuleList 
@@ -354,7 +354,7 @@ SelectFromInternalDB <- function(SearchString, BDName = "MsigDB", Version = NULL
 #' @export
 #'
 #' @examples
-InferBinaryWeigth <- function(ExpressionMatrix, ModuleList, FillAllNA = TRUE) {
+InferBinaryWeight <- function(ExpressionMatrix, ModuleList, FillAllNA = TRUE) {
   
   MedianExpr <- apply(ExpressionMatrix, 1, median, na.rm=TRUE)
   GeneWei <- as.integer(MedianExpr >= median(ExpressionMatrix))
@@ -363,15 +363,15 @@ InferBinaryWeigth <- function(ExpressionMatrix, ModuleList, FillAllNA = TRUE) {
   
   for(i in 1:length(ModuleList)){
     
-    if(!FillAllNA & any(!is.na(ModuleList[[i]]$Weigths))){
+    if(!FillAllNA & any(!is.na(ModuleList[[i]]$Weights))){
       next
     }
     
-    ModuleList[[i]]$Weigths[is.na(ModuleList[[i]]$Weigths)] <-
-      GeneWei[ModuleList[[i]]$Genes[is.na(ModuleList[[i]]$Weigths)]]
+    ModuleList[[i]]$Weights[is.na(ModuleList[[i]]$Weights)] <-
+      GeneWei[ModuleList[[i]]$Genes[is.na(ModuleList[[i]]$Weights)]]
     
-    if(any(is.na(ModuleList[[i]]$Weigths))){
-      print(paste("Warning:", sum(is.na(ModuleList[[i]]$Weigths)), "gene(s) not found in the expression matrix"))
+    if(any(is.na(ModuleList[[i]]$Weights))){
+      print(paste("Warning:", sum(is.na(ModuleList[[i]]$Weights)), "gene(s) not found in the expression matrix"))
     }
     
   }
