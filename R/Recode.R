@@ -575,7 +575,7 @@ rRoma.R <- function(ExpressionMatrix,
             ExpMat <- NULL
 
             if(PCSignMode %in% c("CorrelateAllWeightsByGene", "CorrelateKnownWeightsByGene",
-                                 "CorrelateAllWeightsBySample", "CorrelateKnownWeightsBySample")){
+                                 "CorrelateAllWeightsBySample", "CorrelateKnownWeightsBySample", "UseMeanExpressionKnownWeights", "UseMeanExpressionAllWeights")){
               ExpMat <- OrgExpMatrix[SampleSelGenes, ]
             }
 

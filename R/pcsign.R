@@ -271,6 +271,30 @@ FixPCSign <-
       }
       
     }
+    if (Mode == 'UseMeanExpressionAllWeights'){
+      
+      print(paste("Missing gene weights will be replaced by", DefWei))
+      Wei[is.na(Wei)] <- DefWei
+      Mode <-  'UseMeanExpressionKnownWeights'
+      
+    }
+    
+    if (Mode == 'UseMeanExpressionKnownWeights'){
+      
+      ToUse <- rep(TRUE, length(GeneScore))
+      if (!is.null(Thr)) {
+        ToUse <- abs(GeneScore) >= quantile(abs(GeneScore), Thr)
+      }
+      
+      ExpMat <- scale(apply(ExpMat, 1, median), center = TRUE, scale = FALSE)[ToUse]
+      
+      if(sum(GeneScore[ToUse]*Wei[ToUse]*ExpMat[ToUse]) > 0){
+        return(1)
+      }
+      else{
+        return(-1)
+      }
+    }
     
   }
 
