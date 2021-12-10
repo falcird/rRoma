@@ -9,7 +9,7 @@
 #' @param GroupInfo vector, character. A vector describing the group association of each sample.
 #' @param HMTite scalar, string. The title of the heatmap
 #' @param AggByGroupsFL list, string. A list of function names (as strings) that will be used to aggregate the
-#' geneset weigths and produce additional heatmaps.
+#' geneset weights and produce additional heatmaps.
 #' @param Normalize boolean, shuold weights be normalized to c(-1, 1) for each geneset
 #' @param Transpose boolean, should the samples by plotted on the rows instead of the columns?
 #' @param ZeroColor string, the color to use to mark the points closed to 0 (e.g., "#FFFFFF")
@@ -300,14 +300,14 @@ Plot.Genesets <- function(RomaData, Selected = NULL,
 
 
 
-#' Plot gene weigth across selected samples
+#' Plot gene weight across selected samples
 #'
 #' @param RomaData list, the analysis returned by rRoma
 #' @param Selected vector, integer. The position of the genesets to plot
 #' @param PlotGenes scalar, numeric. The number of genes to plot
 #' @param ExpressionMatrix matrix, numeric. The expression matrix used to produce gene expression boxplot. If NULL (default), no gene expression information is reported
 #' @param LogExpression boolean, should gene expression be logtransformed?
-#' @param PlotWeigthSign boolean, should the sign of the genes weigth be used to color the plots?
+#' @param PlotWeightSign boolean, should the sign of the genes weight be used to color the plots?
 #'
 #' @return
 #' @export
@@ -315,7 +315,7 @@ Plot.Genesets <- function(RomaData, Selected = NULL,
 #' @examples
 PlotGeneWeight <- function(RomaData, PlotGenes = 40,
                            ExpressionMatrix = NULL, LogExpression = TRUE,
-                           Selected = NULL, PlotWeigthSign = FALSE){
+                           Selected = NULL, PlotWeightSign = FALSE){
   
   if(is.null(Selected)){
     Selected <- 1:nrow(RomaData$SampleMatrix)
@@ -354,7 +354,7 @@ PlotGeneWeight <- function(RomaData, PlotGenes = 40,
     DF$Gene <- factor(as.character(DF$Gene), levels = DF$Gene)
     DF$Wei <- factor(as.character(DF$Wei), levels = c("-1", "0", "1"))
     
-    if(PlotWeigthSign){
+    if(PlotWeightSign){
       if(any(as.character(DF$Wei)=="0")){
         p <- ggplot2::ggplot(data = DF, ggplot2::aes(y = Gene, x = Value, color = Wei)) +
           ggplot2::scale_color_manual(values = c("red", "black", "blue"), guide=FALSE)
@@ -389,7 +389,7 @@ PlotGeneWeight <- function(RomaData, PlotGenes = 40,
       colnames(ReshapedData)[4] <- "Wei"
       ReshapedData$Wei <- factor(as.character(ReshapedData$Wei), levels = c("-1", "0", "1"))
       
-      if(PlotWeigthSign){
+      if(PlotWeightSign){
         if(any(as.character(ReshapedData$Wei)=="0")){
           p1 <- ggplot2::ggplot(ReshapedData, ggplot2::aes(x=X1, y=value, fill=Wei)) +
             ggplot2::scale_fill_manual(values = c("red", "white", "blue"), guide=FALSE)
@@ -640,7 +640,7 @@ PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'none'){
 
 
 
-#' Plot the weigth of genes appearing across multiple genesets
+#' Plot the weight of genes appearing across multiple genesets
 #'
 #' @param RomaData list, the analysis returned by rRoma
 #' @param Selected vector, integer. The indices of the genesets to plot 

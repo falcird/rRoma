@@ -184,21 +184,21 @@ ConvertModuleNames <- function(
                            HomologyLevel = HomologyLevel) 
   
   if(SourceOrganism != TargetOrganism){
-    print("Homology-supported gene conversion. Gene weigths will be deleted")
+    print("Homology-supported gene conversion. Gene weights will be deleted")
     RetGene <- lapply(as.list(1:length(ModuleList)), function(i){
       ModuleList[[i]]$Genes <- NewGenes[[i]]
-      ModuleList[[i]]$Weigths <- rep(NA, length(NewGenes[[i]]))
+      ModuleList[[i]]$Weights <- rep(NA, length(NewGenes[[i]]))
       return(ModuleList[[i]])
     })
   } else {
     RetGene <- lapply(as.list(1:length(ModuleList)), function(i){
       
-      OldWei <- ModuleList[[i]]$Weigths
+      OldWei <- ModuleList[[i]]$Weights
       names(OldWei) <- ModuleList[[i]]$Genes
       
       OldWei <- OldWei[names(NewGenes[[i]])]
       names(OldWei) <- NULL
-      ModuleList[[i]]$Weigths <- OldWei
+      ModuleList[[i]]$Weights <- OldWei
       
       names(NewGenes[[i]]) <- NULL
       ModuleList[[i]]$Genes <- NewGenes[[i]]

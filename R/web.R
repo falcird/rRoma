@@ -10,7 +10,7 @@
 #' It can be any combination of the following:
 #' \itemize{
 #' \item 'Module': gene score is obtained by aggregating the score of selected modules containing that gene. The aggregating function is specified by the AggGeneFun parameter. 
-#' \item 'Gene': gene score is obtained by aggregating the weigth of the genes across the selected modules. The aggregating function is specified by the AggGeneFun parameter. 
+#' \item 'Gene': gene score is obtained by aggregating the weight of the genes across the selected modules. The aggregating function is specified by the AggGeneFun parameter. 
 #' }
 #' @param DataName string, scalar. The name of the dataset that will be reported in the web interface
 #' @param AggScoreFun string, scalar. The name of the aggregating function used to compute the valus of the gene score.

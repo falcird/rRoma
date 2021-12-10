@@ -8,7 +8,7 @@
 #' If the parameter is a value between 1 and 0 it will be interpreted as the ratio or genes to return per
 #' geneset (e.g., .1 indicates 10\% of the genes of the geneset)).
 #' @param Mode string, the mode used to determine the top contributing genes. It can be "Wei"
-#' (gene weigths will be used) or "Cor" (pearson correlation between gene expression and module score will be used)
+#' (gene weights will be used) or "Cor" (pearson correlation between gene expression and module score will be used)
 #' @param Plot boolean, shoul the summary heatmap be plotted?
 #' @param ExpressionMatrix numerical matrix, the expression matrix in the same format used by the rRoma.R function
 #' @param OrderType string scalar. The mode of selection for the top contributing genes.
@@ -37,7 +37,7 @@ GetTopContrib <- function(RomaData, Selected = NULL, nGenes = .1,
   }
   
   if(is.null(ExpressionMatrix) & Mode == "Cor"){
-    print("Impossible to compute cerrelations if expression matrix is not provided. Using weigths.")
+    print("Impossible to compute cerrelations if expression matrix is not provided. Using weights.")
     Mode <- "Wei"
   }
   
@@ -125,7 +125,7 @@ GetTopContrib <- function(RomaData, Selected = NULL, nGenes = .1,
     if(OrderType == "Abs"){
       GenesWei <- 
         lapply(
-          lapply(RomaData$WeigthList[Selected], function(x){
+          lapply(RomaData$WeightList[Selected], function(x){
             x[order(abs(x), decreasing = TRUE)]
           }),
           function(x){
@@ -149,7 +149,7 @@ GetTopContrib <- function(RomaData, Selected = NULL, nGenes = .1,
     
     if(OrderType == "Pos"){
       GenesWei <- lapply(
-        lapply(RomaData$WeigthList[Selected], sort, decreasing = TRUE), 
+        lapply(RomaData$WeightList[Selected], sort, decreasing = TRUE), 
         function(x){
           
           if(nGenes<1){
@@ -172,7 +172,7 @@ GetTopContrib <- function(RomaData, Selected = NULL, nGenes = .1,
     
     if(OrderType == "Neg"){
       GenesWei <- lapply(
-        lapply(RomaData$WeigthList[Selected], sort, decreasing = FALSE), 
+        lapply(RomaData$WeightList[Selected], sort, decreasing = FALSE), 
         function(x){
           
           if(nGenes<1){
@@ -204,7 +204,7 @@ GetTopContrib <- function(RomaData, Selected = NULL, nGenes = .1,
       Module = unlist(
         sapply(1:length(ModuleNameList), function(i){rep(ModuleNameList[i], GeneWeiList[[i]])})
       ),
-      Weigth = unlist(GenesWei)
+      Weight = unlist(GenesWei)
     )
     
     VizMat <- matrix(0, nrow = length(unique(RetTable$Gene)), ncol = length(unique(RetTable$Module)))
@@ -212,7 +212,7 @@ GetTopContrib <- function(RomaData, Selected = NULL, nGenes = .1,
     colnames(VizMat) <- sort(unique(as.character(RetTable$Module)))
     
     tt <- apply(RetTable, 1, function(x) {
-      VizMat[x["Gene"], x["Module"]] <<- as.numeric(x["Weigth"])
+      VizMat[x["Gene"], x["Module"]] <<- as.numeric(x["Weight"])
       # VizMat["estimate"]
     })
     

@@ -2,7 +2,7 @@
 #'
 #' @param ExpressionMatrix matrix, a numeric matrix containing the gene expression information. Columns indicate samples and rows indicated genes.
 #' @param ModuleList list, gene module list
-#' @param UseWeigths logical, should the weigths be used for PCA calculation?
+#' @param UseWeights logical, should the weights be used for PCA calculation?
 #' @param ExpFilter logical, should the samples be filtered?
 #' @param MinGenes integer, the minimum number of genes reported by a module available in the expression matrix to process the module
 #' @param MaxGenes integer, the maximum number of genes reported by a module available in the expression matrix to process the module
@@ -32,18 +32,18 @@
 #' @param PCADims integer, the number of PCA dimensions to compute. Should be >= 2. Note that, the value 1 is allowed,
 #' but is not advisable under normal circumstances.
 #' Larger values decrease the error in the estimation of the explained variance but increase the computation time.
-#' @param DefaultWeight integer scalar, the default weigth to us if no weith is specified by the modile file and an algorithm requiring weigths is used
+#' @param DefaultWeight integer scalar, the default weight to us if no weith is specified by the modile file and an algorithm requiring weights is used
 #' @param PCSignMode characrter scalar, the modality to use to determine the direction of the principal components. The following options are currentlhy available:
 #' \itemize{
 #' \item 'none' (The direction is chosen at random)
 #' \item 'PreferActivation': the direction is chosen in such a way that the sum of the projection is positive
-#' \item 'UseAllWeights': as 'PreferActivation', but the projections are multiplied by the weigths, missing weights are set to DefaultWeight
-#' \item 'UseKnownWeights': as 'UseAllWeights', but missing weigth are set to 0
+#' \item 'UseAllWeights': as 'PreferActivation', but the projections are multiplied by the weights, missing weights are set to DefaultWeight
+#' \item 'UseKnownWeights': as 'UseAllWeights', but missing weight are set to 0
 #' \item 'CorrelateAllWeightsByGene': the direction is chosen in such a way to maximise the positive correlation between the expression of genes with a positive (negative) weights
 #' and the (reversed) PC projections, missing weights are set to DefaultWeight
 #' \item 'CorrelateKnownWeightsByGene': as 'CorrelateAllWeights', but missing weights are set to 0
-#' \item 'CorrelateAllWeightsBySample': the direction is chosen in such a way to maximise the positive correlation between the expression of genes and the PC corrected weigth
-#' (i.e., PC weigths are multiplied by gene weigths), missing weights are set to DefaultWeight
+#' \item 'CorrelateAllWeightsBySample': the direction is chosen in such a way to maximise the positive correlation between the expression of genes and the PC corrected weight
+#' (i.e., PC weights are multiplied by gene weights), missing weights are set to DefaultWeight
 #' \item 'CorrelateKnownWeightsBySample': as 'CorrelateAllWeightsBySample', but missing weights are set to 0
 #' }
 #' If 'CorrelateAllWeights', 'CorrelateKnownWeights', 'CorrelateAllWeightsBySample' or 'CorrelateKnownWeightsBySample' are used
@@ -55,7 +55,7 @@
 #' @param nCores integer, the number of cores to use if UseParallel is TRUE. Set to NULL for auto-detection
 #' @param ClusType string, the cluster type to use. The default value ("PSOCK") should be available on most systems, unix-like environments also support the "FORK",
 #' which should be faster.
-#' @param SamplingGeneWeights named vector, numeric. Weigth so use when correcting the sign of the PC for sampled data.
+#' @param SamplingGeneWeights named vector, numeric. Weight so use when correcting the sign of the PC for sampled data.
 #' @param FillNAMethod names list, additional parameters to pass to the mice function
 #' @param Grouping named vector, the groups associated with the sample.
 #' @param FullSampleInfo boolean, should full PC information be computed and saved for all the randomised genesets?
@@ -67,7 +67,7 @@
 #' @export
 #'
 #' @examples
-PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, ModuleList, UseWeigths = FALSE,
+PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, ModuleList, UseWeights = FALSE,
                     DefaultWeight = 1, MinGenes = 10, MaxGenes = 1000, ApproxSamples = 5,
                     nSamples = 100, OutGeneNumber = 5, Ncomp = 10, OutGeneSpace = NULL, FixedCenter = TRUE,
                     GeneOutDetection = "L1OutExpOut", GeneOutThr = 5, GeneSelMode = "All", SampleFilter = TRUE,
@@ -133,13 +133,13 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
   }
   
   if(FullSampleInfo & interactive()){
-    print("PC projections and weigths will be computed and reoriented for sampled genesets. This is potentially very time consuming.")
+    print("PC projections and weights will be computed and reoriented for sampled genesets. This is potentially very time consuming.")
     Ans <- readline("Are you sure you want to do that? (y/n)")
     if(Ans != "y" & Ans != "Y"){
       FullSampleInfo <- FALSE
-      print("PC projections and weigths will NOT be computed and reoriented for sampled genesets.")
+      print("PC projections and weights will NOT be computed and reoriented for sampled genesets.")
     } else {
-      print("PC projections and weigths will be computed and reoriented for sampled genesets.")
+      print("PC projections and weights will be computed and reoriented for sampled genesets.")
     }
   }
   
@@ -240,7 +240,7 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
   ModuleMatrix <- NULL
   
   ProjMatrix <- NULL
-  WeigthList <- list()
+  WeightList <- list()
   
   PVVectMat <- NULL
   
@@ -252,7 +252,7 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
   for(i in 1:length(ModuleList)){
     Preserve <- ModuleList[[i]]$Genes %in% rownames(ExpressionMatrix)
     ModuleList[[i]]$Genes <- ModuleList[[i]]$Genes[Preserve]
-    ModuleList[[i]]$Weigths <- ModuleList[[i]]$Weigths[Preserve]
+    ModuleList[[i]]$Weights <- ModuleList[[i]]$Weights[Preserve]
   }
   
   # Filter genesets depending on the number of genes
@@ -331,13 +331,13 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
     
     # Computing PC on the unfiltered data (only for reference)
     
-    if(UseWeigths){
-      print("Using weigths")
-      Correction <- ModuleList[[i]]$Weigths
+    if(UseWeights){
+      print("Using weights")
+      Correction <- ModuleList[[i]]$Weights
       names(Correction) <- CompatibleGenes
       Correction[!is.finite(Correction)] <- DefaultWeight
     } else {
-      print("Not using weigths for PCA computation")
+      print("Not using weights for PCA computation")
       Correction <- rep(1, length(CompatibleGenes))
       names(Correction) <- CompatibleGenes
     }
@@ -448,12 +448,12 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
               ExpMat <- OrgExpMatrix[SampleSelGenes, ]
             }
             
-            CorrectSign1 <- FixPCSign(PCWeigth = PCSamp$rotation[,1], PCProj = PCSamp$x[,1],
+            CorrectSign1 <- FixPCSign(PCWeight = PCSamp$rotation[,1], PCProj = PCSamp$x[,1],
                                       Wei = SamplingGeneWeights[SampleSelGenes],
                                       Mode = PCSignMode, DefWei = DefaultWeight, Thr = PCSignThr,
                                       Grouping = Grouping, ExpMat = ExpMat, CorMethod = CorMethod)
             if(PCADims > 1){
-              CorrectSign2 <- FixPCSign(PCWeigth = PCSamp$rotation[,2], PCProj = PCSamp$x[,2],
+              CorrectSign2 <- FixPCSign(PCWeight = PCSamp$rotation[,2], PCProj = PCSamp$x[,2],
                                         Wei = SamplingGeneWeights[SampleSelGenes],
                                         Mode = PCSignMode, DefWei = DefaultWeight, Thr = PCSignThr,
                                         Grouping = Grouping, ExpMat = ExpMat, CorMethod = CorMethod)
@@ -607,8 +607,8 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
       ExpMat <- OrgExpMatrix[CompatibleGenes, ]
     }
     
-    CorrectSignUnf <- FixPCSign(PCWeigth = PCBaseUnf$rotation[,1], PCProj = PCBaseUnf$x[,1],
-                                Wei = ModuleList[[i]]$Weigths[ModuleList[[i]]$Genes %in% CompatibleGenes],
+    CorrectSignUnf <- FixPCSign(PCWeight = PCBaseUnf$rotation[,1], PCProj = PCBaseUnf$x[,1],
+                                Wei = ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% CompatibleGenes],
                                 Mode = PCSignMode, DefWei = DefaultWeight, Thr = PCSignThr,
                                 Grouping = GroupPCsVect, ExpMat = ExpMat, CorMethod = CorMethod)
     
@@ -620,15 +620,15 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
       ExpMat <- OrgExpMatrix[SelGenes, ]
     }
     
-    CorrectSign1 <- FixPCSign(PCWeigth = PCBase$rotation[,1], PCProj = PCBase$x[,1],
-                              Wei = ModuleList[[i]]$Weigths[ModuleList[[i]]$Genes %in% SelGenes],
+    CorrectSign1 <- FixPCSign(PCWeight = PCBase$rotation[,1], PCProj = PCBase$x[,1],
+                              Wei = ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% SelGenes],
                               Mode = PCSignMode, DefWei = DefaultWeight, Thr = PCSignThr,
                               Grouping = GroupPCsVect, ExpMat = ExpMat, CorMethod = CorMethod)
     
     
     if(PCADims >= 2){
-      CorrectSign2 <- FixPCSign(PCWeigth = PCBase$rotation[,2], PCProj = PCBase$x[,2],
-                                Wei = ModuleList[[i]]$Weigths[ModuleList[[i]]$Genes %in% SelGenes],
+      CorrectSign2 <- FixPCSign(PCWeight = PCBase$rotation[,2], PCProj = PCBase$x[,2],
+                                Wei = ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% SelGenes],
                                 Mode = PCSignMode, DefWei = DefaultWeight, Thr = PCSignThr,
                                 Grouping = GroupPCsVect, ExpMat = ExpMat, CorMethod = CorMethod)
       
@@ -646,7 +646,7 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
         print(p)
       }
       
-      WeiVect <- ModuleList[[i]]$Weigths[ModuleList[[i]]$Genes %in% SelGenes]
+      WeiVect <- ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% SelGenes]
       names(WeiVect) <- SelGenes
       
       if(PCSignMode %in% c('UseAllWeights', 'CorrelateAllWeightsBySample', 'CorrelateAllWeightsByGene')){
@@ -747,7 +747,7 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
         
         
         
-        print("Plotting expression VS PC weigths")
+        print("Plotting expression VS PC weights")
         
         for(GroupID in levels(MeltData$Group)){
           
@@ -772,7 +772,7 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
         
         
         
-        print("Plotting correlation of expression VS PC weigths")
+        print("Plotting correlation of expression VS PC weights")
         
         CorData <- apply(LocMat, 2, function(x){
           CT <- cor.test(x[!is.na(CorrLoading)], CorrLoading[!is.na(CorrLoading)])
@@ -827,21 +827,21 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
     
     ProjMatrix <- rbind(ProjMatrix, ModProjSamples)
     
-    # Correct the sign of the first PC weigths (Filtered and unfiltered)
-    tWeigths <- CorrectSign1*PCBase$rotation[,1]
-    names(tWeigths) <- SelGenes
+    # Correct the sign of the first PC weights (Filtered and unfiltered)
+    tWeights <- CorrectSign1*PCBase$rotation[,1]
+    names(tWeights) <- SelGenes
     
-    tWeigthsUnf <- CorrectSignUnf*PCBaseUnf$rotation[,1]
-    names(tWeigthsUnf) <- CompatibleGenes
+    tWeightsUnf <- CorrectSignUnf*PCBaseUnf$rotation[,1]
+    names(tWeightsUnf) <- CompatibleGenes
     
-    WeigthList[[length(WeigthList)+1]] <- tWeigths
+    WeightList[[length(WeightList)+1]] <- tWeights
     
     ModuleSummary[[length(ModuleSummary)+1]] <- list(ModuleName = ModuleList[[i]]$Name, ModuleDesc = ModuleList[[i]]$Desc,
                                                      OriginalGenes = CompatibleGenes, UsedGenes = SelGenes, SampledGenes = SampledsGeneList,
                                                      PCABase = PCBase, PCBaseUnf = PCBaseUnf,
                                                      CorrectSign1 = CorrectSign1, CorrectSign2 = CorrectSign2, ExpVarBase = ExpVar, ExpVarBaseUnf = ExpVarUnf, SampledExp = SampledExp,
-                                                     PC1Weight.SignFixed = tWeigths, PC1WeightUnf.SignFixed = tWeigthsUnf,
-                                                     GMTWei = ModuleList[[i]]$Weigths[ModuleList[[i]]$Genes %in% SelGenes])
+                                                     PC1Weight.SignFixed = tWeights, PC1WeightUnf.SignFixed = tWeightsUnf,
+                                                     GMTWei = ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% SelGenes])
     
   }
   
@@ -881,11 +881,11 @@ PCrRoma.R <- function(ExpressionMatrix, centerData = TRUE, ExpFilter=FALSE, Modu
     ReorderIdxs <- order(ModuleOrder[UsedModules])
     
     return(list(ModuleMatrix = ModuleMatrix[ReorderIdxs,], ProjMatrix = ProjMatrix[ReorderIdxs,], ModuleSummary = ModuleSummary[ReorderIdxs],
-                WeigthList = WeigthList[ReorderIdxs], PVVectMat = PVVectMat[ReorderIdxs,], OutLiersList = OutLiersList[ReorderIdxs],
+                WeightList = WeightList[ReorderIdxs], PVVectMat = PVVectMat[ReorderIdxs,], OutLiersList = OutLiersList[ReorderIdxs],
                 GeneCenters = GeneCenters, SampleCenters = SampleCenters))
   } else {
     return(list(ModuleMatrix = ModuleMatrix, ProjMatrix = ProjMatrix, ModuleSummary = ModuleSummary,
-                WeigthList = WeigthList, PVVectMat = PVVectMat, OutLiersList = OutLiersList,
+                WeightList = WeightList, PVVectMat = PVVectMat, OutLiersList = OutLiersList,
                 GeneCenters = GeneCenters, SampleCenters = SampleCenters))
   }
   

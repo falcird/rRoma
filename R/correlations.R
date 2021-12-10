@@ -50,7 +50,7 @@ GetCorrelations <- function(RomaData, Selected = NULL, MatData, Methods = "pears
   for(i in Selected){
 
     CorVal <- apply(MatData[RomaData$ModuleSummary[[i]]$UsedGenes, SampleIds], 2, function(x){
-      CT <- cor.test(x = x, y = (RomaData$WeigthList[[i]])[names(x)], conf.level = ConfLevel, method = Methods)
+      CT <- cor.test(x = x, y = (RomaData$WeightList[[i]])[names(x)], conf.level = ConfLevel, method = Methods)
       c(CT$estimate, CT$conf.int, CT$p.value)
     })
 
