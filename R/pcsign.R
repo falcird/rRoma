@@ -285,15 +285,21 @@ FixPCSign <-
         print("Not enough weights, PC will be oriented randomly")
         return(1)
       }
-      
-      ToUse <- rep(TRUE, length(GeneScore))
-      if (!is.null(Thr)) {
-        ToUse <- abs(GeneScore) >= quantile(abs(GeneScore), Thr)
+      if(is.null(ExpMat)){
+        print("ExpMat not specified, PC will be oriented randomly")
+        return(1)
       }
       
-      ExpMat <- scale(apply(ExpMat, 1, median), center = TRUE, scale = FALSE)[ToUse]
+      ToUse <- rep(TRUE, length(GeneScore))
+
+      if (!is.null(Thr)) {
+        ToUse <- (GeneScore >= max(quantile(GeneScore, Thr), 0)) | (GeneScore <= min(0, quantile(GeneScore, 1-Thr)))
+      }
       
-      if(sum(GeneScore[ToUse]*Wei[ToUse]*ExpMat[ToUse], na.rm = TRUE) > 0){
+      ExpMat <- scale(apply(ExpMat[ToUse, ], 1, median), center = TRUE, scale = FALSE)
+      
+      
+      if(sum(GeneScore[ToUse]*Wei[ToUse]*ExpMat, na.rm = TRUE) > 0){
         return(1)
       }
       else{

@@ -93,7 +93,7 @@ rRoma.R <- function(ExpressionMatrix,
                     PlotData = FALSE,
                     PCADims = 2,
                     PCSignMode ='none',
-                    PCSignThr = NULL,
+                    PCSignThr = 0.90,
                     UseParallel = FALSE,
                     nCores = NULL,
                     ClusType = "PSOCK",
@@ -761,7 +761,7 @@ rRoma.R <- function(ExpressionMatrix,
 
     ExpMat <- NULL
     if(PCSignMode %in% c("CorrelateAllWeightsByGene", "CorrelateKnownWeightsByGene",
-                         "CorrelateAllWeightsBySample", "CorrelateKnownWeightsBySample")){
+                         "CorrelateAllWeightsBySample", "CorrelateKnownWeightsBySample", "UseMeanExpressionKnownWeights", "UseMeanExpressionAllWeights")){
       ExpMat <- OrgExpMatrix[CompatibleGenes, ]
     }
 
@@ -787,7 +787,7 @@ rRoma.R <- function(ExpressionMatrix,
 
     ExpMat <- NULL
     if(PCSignMode %in% c("CorrelateAllWeightsByGene", "CorrelateKnownWeightsByGene",
-                         "CorrelateAllWeightsBySample", "CorrelateKnownWeightsBySample")){
+                         "CorrelateAllWeightsBySample", "CorrelateKnownWeightsBySample", "UseMeanExpressionKnownWeights", "UseMeanExpressionAllWeights")){
       ExpMat <- OrgExpMatrix[SelGenes, ]
     }
 
