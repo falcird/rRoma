@@ -60,8 +60,8 @@ Plot.Genesets <- function(RomaData, Selected = NULL,
   
   B <- boxplot(PlotData, at = 1:length(Selected), las = 2, ylab = "Median expression", main = "Selected genesets",
                names = unlist(lapply(RomaData$ModuleSummary[Selected], "[[", "ModuleName")),
-               ylim = range(c(unlist(PlotData), RomaData$ModuleMatrix[Selected,5]), na.rm = TRUE))
-  points(x = 1:length(Selected), y = RomaData$ModuleMatrix[Selected,5], pch = 20, col="red", cex = 2)
+               ylim = range(c(unlist(PlotData), RomaData$ModuleMatrix[Selected,7]), na.rm = TRUE))
+  points(x = 1:length(Selected), y = RomaData$ModuleMatrix[Selected,7], pch = 20, col="red", cex = 2)
   
   par(op)
   
@@ -116,9 +116,8 @@ Plot.Genesets <- function(RomaData, Selected = NULL,
   tColorGradient <- ColorGradient
   
   if(prod(MatRange) > 0){
-    # Only positive or negative values are observed
+    # Only positive or only negative values are observed
     
-    # Only positive or negative values are observed
     if(MatRange[1]>0){
       # Only positive values are available
       if(is.null(ZeroColor)){
@@ -322,10 +321,10 @@ PlotGeneWeight <- function(RomaData, PlotGenes = 40,
   }
   
   if(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix)))<1){
-    print("No Genset selected")
+    print("No Geneset selected")
     return(NULL)
   } else {
-    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset selected"))
+    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset(s) selected"))
   }
   
   
