@@ -377,7 +377,7 @@ PlotGeneWeight <- function(RomaData, PlotGenes = 40,
       
       print(p + ggplot2::ggtitle(paste(RomaData$ModuleSummary[[i]]$ModuleName,
                                        "L1=", signif(RomaData$ModuleMatrix[i,1], 3),
-                                       "L1/L2=", signif(RomaData$ModuleMatrix[i,3], 3))))
+                                       "L1/L2=", signif(RomaData$ModuleMatrix[i,4], 3))))
       
     } else {
       
@@ -409,7 +409,7 @@ PlotGeneWeight <- function(RomaData, PlotGenes = 40,
       
       gridExtra::grid.arrange(p, p1, ncol=2, top=paste(RomaData$ModuleSummary[[i]]$ModuleName,
                                                                "L1=", signif(RomaData$ModuleMatrix[i,1], 3),
-                                                               "L1/L2=", signif(RomaData$ModuleMatrix[i,3], 3)))
+                                                               "L1/L2=", signif(RomaData$ModuleMatrix[i,4], 3)))
       
       # boxplot(t(ExpressionMatrix[as.character(DF$Gene[1:nGenes])[order(DF$Position[1:nGenes])], ]))
       
@@ -458,10 +458,10 @@ PlotSampleProjections <- function(RomaData, PlotSamples = 40,
   }
   
   if(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix)))<1){
-    print("No Genset selected")
+    print("No Geneset selected")
     return(NULL)
   } else {
-    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset selected"))
+    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset(s) selected"))
   } 
   
   for(i in Selected){
@@ -494,7 +494,7 @@ PlotSampleProjections <- function(RomaData, PlotSamples = 40,
       
       print(p + ggplot2::ggtitle(paste(RomaData$ModuleSummary[[i]]$ModuleName,
                                        "L1=", signif(RomaData$ModuleMatrix[i,1], 3),
-                                       "L1/L2=", signif(RomaData$ModuleMatrix[i,3], 3))))
+                                       "L1/L2=", signif(RomaData$ModuleMatrix[i,4], 3))))
       
     } else {
       
@@ -517,7 +517,7 @@ PlotSampleProjections <- function(RomaData, PlotSamples = 40,
       
       gridExtra::grid.arrange(p, p1, ncol=2, top=paste(RomaData$ModuleSummary[[i]]$ModuleName,
                                                                "L1=", signif(RomaData$ModuleMatrix[i,1], 3),
-                                                               "L1/L2=", signif(RomaData$ModuleMatrix[i,3], 3)))
+                                                               "L1/L2=", signif(RomaData$ModuleMatrix[i,4], 3)))
       
       # boxplot(t(ExpressionMatrix[as.character(DF$Gene[1:nGenes])[order(DF$Position[1:nGenes])], ]))
       
@@ -548,10 +548,10 @@ PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'none'){
     }
     
     if(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix)))<1){
-      print("No Genset selected")
+      print("No Geneset selected")
       return(NULL)
     } else {
-      print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset selected"))
+      print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset(s) selected"))
     } 
     
     for(i in Selected){
@@ -566,6 +566,7 @@ PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'none'){
       
       
       if(any(sapply(PrjList, is.null)) | !all(PlotPCProj != "none")){
+        print(paste("Information on reference distribution not available. Skipping ", RomaData$ModuleSummary[[i]]$ModuleName, ". Consider changing FullSampleInfo to TRUE in rRoma.R", sep = "" ))
         next()
       }
       
@@ -596,7 +597,7 @@ PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'none'){
           ggplot2::scale_y_continuous(limits = YLims) +
           ggplot2::ggtitle(paste(RomaData$ModuleSummary[[i]]$ModuleName,
                                  "L1=", signif(RomaData$ModuleMatrix[i,1], 3),
-                                 "L1/L2=", signif(RomaData$ModuleMatrix[i,3], 3))) +
+                                 "L1/L2=", signif(RomaData$ModuleMatrix[i,4], 3))) +
           ggplot2::geom_hline(yintercept=0) + ggplot2::geom_vline(xintercept=0)
         
         print(p)
@@ -610,7 +611,7 @@ PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'none'){
           ggplot2::scale_y_continuous(limits = YLims) +
           ggplot2::ggtitle(paste(RomaData$ModuleSummary[[i]]$ModuleName,
                                  "L1=", signif(RomaData$ModuleMatrix[i,1], 3),
-                                 "L1/L2=", signif(RomaData$ModuleMatrix[i,3], 3))) +
+                                 "L1/L2=", signif(RomaData$ModuleMatrix[i,4], 3))) +
           ggplot2::geom_hline(yintercept=0) + ggplot2::geom_vline(xintercept=0) +
           ggplot2::geom_point(data = DF[DF$Source=="Data",], mapping = ggplot2::aes(x = PC1, y = PC2), color="red")
         
@@ -626,7 +627,7 @@ PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'none'){
           ggplot2::scale_y_continuous(limits = YLims) +
           ggplot2::ggtitle(paste(RomaData$ModuleSummary[[i]]$ModuleName,
                                  "L1=", signif(RomaData$ModuleMatrix[i,1], 3),
-                                 "L1/L2=", signif(RomaData$ModuleMatrix[i,3], 3))) +
+                                 "L1/L2=", signif(RomaData$ModuleMatrix[i,4], 3))) +
           ggplot2::geom_hline(yintercept=0) + ggplot2::geom_vline(xintercept=0) +
           ggplot2::geom_point(data = DF[DF$Source=="Data",], mapping = ggplot2::aes(x = PC1, y = PC2), color="red")
         
@@ -658,10 +659,10 @@ PlotRecurringGenes  <- function(RomaData, Selected = NULL,
   }
   
   if(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix)))<1){
-    print("No Genset selected")
+    print("No Geneset selected")
     return(NULL)
   } else {
-    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset selected"))
+    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset(s) selected"))
   }
   
   AllGenes <- lapply(RomaData$ModuleSummary, "[[", "UsedGenes")
@@ -733,7 +734,7 @@ PlotRecurringGenes  <- function(RomaData, Selected = NULL,
       } else {
         boxplot(ToPlotData[,Seps[j]], horizontal=FALSE, las = 2,
                 main = paste("Genes with multiplicity", names(GenesByMult)[i]),
-                ylab = "Weight", xlab=colnames(ToPlotData)[Seps[j]])
+                ylab = "Weight (across genesets)", xlab=colnames(ToPlotData)[Seps[j]])
         # barplot(var(ToPlotData[,Seps[j]], na.rm=TRUE)/
         #           abs(mean(ToPlotData[,Seps[j]], na.rm=TRUE)),
         #         las= 2, log = 'y', xlab=colnames(ToPlotData)[Seps[j]])
@@ -899,8 +900,13 @@ ExploreGeneProperties <- function(
         stringsAsFactors = FALSE
       )
     )
-    
-    PWComp <- pairwise.wilcox.test(ExpData$Exp, ExpData$Condition)$p.value
+    ExpData <- ExpData[!is.na(ExpData$Condition), ]
+    if(is.factor(ExpData$Condition)){
+      ExpData$Condition <- relevel(ExpData$Condition, "Total")
+    } else {
+      ExpData$Condition <- relevel(factor(ExpData$Condition), "Total")
+    }
+    PWComp <- pairwise.wilcox.test(ExpData$Exp, ExpData$Condition, p.adjust.method = "BH")$p.value
     ExtPWComp <- matrix(rep(NA, length(unique(ExpData$Condition))^2), nrow = length(unique(ExpData$Condition)))
     colnames(ExtPWComp) <- sort(unique(ExpData$Condition))
     rownames(ExtPWComp) <- colnames(ExtPWComp)
@@ -909,15 +915,11 @@ ExploreGeneProperties <- function(
     
     ToDisplay <- apply(which(ExtPWComp <= .05, arr.ind = TRUE), 1, list)
     ToDisplay <- lapply(ToDisplay, function(x){as.integer(unlist(x))})
-    ToDisplay <- ToDisplay[sapply(ToDisplay, function(x){all(x != 1)})]
+    ToDisplay <- ToDisplay[sapply(ToDisplay, function(x){all(x != 1)})] # To prevent comparison with total
   }
   
 
-  if(is.factor(ExpData$Condition)){
-    ExpData$Condition <- relevel(ExpData$Condition, "Total")
-  } else {
-    ExpData$Condition <- relevel(factor(ExpData$Condition), "Total")
-  }
+
   
   
   p <- ggplot2::ggplot(data = ExpData, mapping = ggplot2::aes(y = Exp, x = Condition, fill=Condition)) + 
