@@ -1041,7 +1041,7 @@ ExploreGeneProperties <- function(
     ggplot2::labs(y = "Weight", x = "", title = GeneName) + 
     ggplot2::geom_text(data = Wei.DF.Selected,
                        mapping = ggplot2::aes(x = "", y = Wei,
-                                              label = paste(signif(100*Order, 2), "th")
+                                              label = paste(signif(100*Order, 2), "%")
                        ),
                        hjust = 0, nudge_x = 0.05, size = 7,
                        inherit.aes = FALSE) + 
