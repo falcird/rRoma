@@ -1,13 +1,13 @@
 #' Compare ROMA scores across samples from different populations
 #'
 #' @param RomaData list, the analysis returned by rRoma
-#' @param Groups string vector, a vector of group identifier described by strings
-#' @param Selected The genesets used to perform the analysis 
-#' @param TestMode string, the type of statistical methodology to assess sample difference. Currentyl only ANOVA + Tukey is implemented ("Aov+Tuk")
+#' @param Groups string vector, a vector of group identifiers
+#' @param Selected Genesets used to perform the analysis 
+#' @param TestMode string, the type of statistical methodology to assess sample difference. Currently only ANOVA + Tukey is implemented ("Aov+Tuk")
 #' @param TestPV1 numeric between 0 and 1, the threshold PV for the initial test (ANOVA)
 #' @param TestPV2 numeric between 0 and 1, the threshold PV for difference test (Tukey)
-#' @param PlotDiag boolean, should diagnostic plot be displyed?
-#' @param PlotXGSDiff boolean, should all the significant differences by considered?
+#' @param PlotDiag boolean, should diagnostic plot be displayed?
+#' @param PlotXGSDiff boolean, should all significant differences by considered?
 #'
 #' @return
 #' @export
@@ -22,7 +22,7 @@ CompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
   }
   
   if(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix)))<1){
-    print("No Genset selected")
+    print("No Geneset selected")
     return(NULL)
   } else {
     print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset selected"))
