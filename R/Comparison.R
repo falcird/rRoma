@@ -274,8 +274,8 @@ CompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
 #' @param VarMode string, the test to use to select over- or under-dispersed genesets.
 #' Currently it can be either 'Wil' (Wilcoxon test) or 'PPV' (permutation base p-value)
 #' @param VarType string, the type of statistical difference to select. Currently it can be either 'Over' (overdispersed) or 'Under' (underdispersed)
-#' @param MedThr numeric between 0 and 1, the threshold PV to select significantly over- or under-expressed genesets
-#' @param MedMode string, the test to use to select over- or under-expressed genesets.
+#' @param MedThr numeric between 0 and 1, the threshold PV to select significantly over- or under-expressed genesets, using median expression
+#' @param MedMode string, the test to use to select over- or under-expressed genesets, using median expression.
 #' Currently it can be either 'Wil' (Wilcoxon test) or 'PPV' (permutation base p-value)
 #' @param MedType string, the type of statistical difference to select. Currently it can be either 'Over' (overexpressed) or 'Under' (underexpressed)
 #' @param PValAdjust string, the p-value adjustment methods. Can be "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", or "none"
@@ -305,12 +305,12 @@ SelectGeneSets <- function(RomaData,
     
     if(VarMode == 'PPV' & VarType == "Over"){
       print(paste("Using genesets overdispersed according to pseudo pv. VarThr =", VarThr))
-      SelectedVar <- which(p.adjust(RomaData$ModuleMatrix[,2], method = PValAdjust)<VarThr)
+      SelectedVar <- which(p.adjust(RomaData$ModuleMatrix[,3], method = PValAdjust)<VarThr)
     }
     
     if(VarMode == 'PPV' & VarType == "Under"){
       print(paste("Using genesets underdispersed according to pseudo pv. VarThr =", VarThr))
-      SelectedVar <- which(p.adjust(RomaData$ModuleMatrix[,2], method = PValAdjust)<1-VarThr)
+      SelectedVar <- which(p.adjust(1-RomaData$ModuleMatrix[,3], method = PValAdjust)<VarThr)
     }
     
   } else {
@@ -329,22 +329,22 @@ SelectGeneSets <- function(RomaData,
     }
     
     if(RatMode == 'Wil' & RatType == "Under"){
-      print(paste("Using genesets undecoordinated according to Wilcoxon test. RatThr =", RatThr))
+      print(paste("Using genesets undercoordinated according to Wilcoxon test. RatThr =", RatThr))
       SelectedRat <- which(p.adjust(RomaData$PVVectMat[,4], method = PValAdjust)<RatThr)
     }
     
     if(RatMode == 'PPV' & RatType == "Over"){
       print(paste("Using genesets overcoordinated according to pseudo pv. RatThr =", RatThr))
-      SelectedRat <- which(p.adjust(RomaData$ModuleMatrix[,4], method = PValAdjust)<RatThr)
+      SelectedRat <- which(p.adjust(RomaData$ModuleMatrix[,6], method = PValAdjust)<RatThr)
     }
     
     if(RatMode == 'PPV' & RatType == "Under"){
-      print(paste("Using genesets undecoordinated according to pseudo pv. RatThr =", RatThr))
-      SelectedRat <- which(p.adjust(RomaData$ModuleMatrix[,4], method = PValAdjust)<1-RatThr)
+      print(paste("Using genesets undercoordinated according to pseudo pv. RatThr =", RatThr))
+      SelectedRat <- which(p.adjust(1-RomaData$ModuleMatrix[,6], method = PValAdjust)<RatThr)
     }
 
   } else {
-    print("No coordinatedness filter selected")
+    print("No coordination filter selected")
     SelectedRat <- 1:nrow(RomaData$ModuleMatrix)
   }
   
@@ -364,12 +364,12 @@ SelectGeneSets <- function(RomaData,
     
     if(MedMode == 'PPV' & MedType == "Over"){
       print(paste("Using genesets overexpressed according to pseudo pv. MedThr =", MedThr))
-      SelectedMed <- which(p.adjust(RomaData$ModuleMatrix[,6], method = PValAdjust)<MedThr)
+      SelectedMed <- which(p.adjust(RomaData$ModuleMatrix[,8], method = PValAdjust)<MedThr)
     }
     
     if(MedMode == 'PPV' & MedType == "Under"){
       print(paste("Using genesets underexpressed according to pseudo pv. MedThr =", MedThr))
-      SelectedMed <- which(p.adjust(RomaData$ModuleMatrix[,6], method = PValAdjust)<1-MedThr)
+      SelectedMed <- which(p.adjust(1-RomaData$ModuleMatrix[,8], method = PValAdjust)<MedThr)
     }
     
   } else {
