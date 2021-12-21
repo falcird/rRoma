@@ -270,8 +270,8 @@ CompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
 #' Select genesets accoding to specific conditions
 #'
 #' @param RomaData list, the analysis returned by rRoma 
-#' @param VarThr numeric between 0 and 1, the threshold PV to select significantly over- or under-disperdes genesets
-#' @param VarMode string, the test to use to select over- or under-underdisperdes genesets.
+#' @param VarThr numeric between 0 and 1, the threshold PV to select significantly over- or under-dispersed genesets
+#' @param VarMode string, the test to use to select over- or under-dispersed genesets.
 #' Currently it can be either 'Wil' (Wilcoxon test) or 'PPV' (permutation base p-value)
 #' @param VarType string, the type of statistical difference to select. Currently it can be either 'Over' (overdispersed) or 'Under' (underdispersed)
 #' @param MedThr numeric between 0 and 1, the threshold PV to select significantly over- or under-expressed genesets
@@ -294,22 +294,22 @@ SelectGeneSets <- function(RomaData,
   if(VarType %in% c("Over", "Under") & !is.null(VarThr) & VarMode %in% c("Wil", "PPV")){ 
     
     if(VarMode == 'Wil' & VarType == "Over"){
-      print(paste("Using genestes overdispersed according to Wilcoxon test. VarThr =", VarThr))
+      print(paste("Using genesets overdispersed according to Wilcoxon test. VarThr =", VarThr))
       SelectedVar <- which(p.adjust(RomaData$PVVectMat[,1], method = PValAdjust)<VarThr)
     }
     
     if(VarMode == 'Wil' & VarType == "Under"){
-      print(paste("Using genestes underdispersed according to Wilcoxon test. VarThr =", VarThr))
+      print(paste("Using genesets underdispersed according to Wilcoxon test. VarThr =", VarThr))
       SelectedVar <- which(p.adjust(RomaData$PVVectMat[,2], method = PValAdjust)<VarThr)
     }
     
     if(VarMode == 'PPV' & VarType == "Over"){
-      print(paste("Using genestes overdispersed according to pseudo pv. VarThr =", VarThr))
+      print(paste("Using genesets overdispersed according to pseudo pv. VarThr =", VarThr))
       SelectedVar <- which(p.adjust(RomaData$ModuleMatrix[,2], method = PValAdjust)<VarThr)
     }
     
     if(VarMode == 'PPV' & VarType == "Under"){
-      print(paste("Using genestes underdispersed according to pseudo pv. VarThr =", VarThr))
+      print(paste("Using genesets underdispersed according to pseudo pv. VarThr =", VarThr))
       SelectedVar <- which(p.adjust(RomaData$ModuleMatrix[,2], method = PValAdjust)<1-VarThr)
     }
     
@@ -324,22 +324,22 @@ SelectGeneSets <- function(RomaData,
   if(!is.null(RatThr) & RatType %in% c("Over", "Under") & RatMode %in% c("Wil", "PPV")){
     
     if(RatMode == 'Wil' & RatType == "Over"){
-      print(paste("Using genestes overcoordinated according to Wilcoxon test. RatThr =", RatThr))
+      print(paste("Using genesets overcoordinated according to Wilcoxon test. RatThr =", RatThr))
       SelectedRat <- which(p.adjust(RomaData$PVVectMat[,3], method = PValAdjust)<RatThr)
     }
     
     if(RatMode == 'Wil' & RatType == "Under"){
-      print(paste("Using genestes undecoordinated according to Wilcoxon test. RatThr =", RatThr))
+      print(paste("Using genesets undecoordinated according to Wilcoxon test. RatThr =", RatThr))
       SelectedRat <- which(p.adjust(RomaData$PVVectMat[,4], method = PValAdjust)<RatThr)
     }
     
     if(RatMode == 'PPV' & RatType == "Over"){
-      print(paste("Using genestes overcoordinated according to pseudo pv. RatThr =", RatThr))
+      print(paste("Using genesets overcoordinated according to pseudo pv. RatThr =", RatThr))
       SelectedRat <- which(p.adjust(RomaData$ModuleMatrix[,4], method = PValAdjust)<RatThr)
     }
     
     if(RatMode == 'PPV' & RatType == "Under"){
-      print(paste("Using genestes undecoordinated according to pseudo pv. RatThr =", RatThr))
+      print(paste("Using genesets undecoordinated according to pseudo pv. RatThr =", RatThr))
       SelectedRat <- which(p.adjust(RomaData$ModuleMatrix[,4], method = PValAdjust)<1-RatThr)
     }
 
@@ -353,22 +353,22 @@ SelectGeneSets <- function(RomaData,
   if(!is.null(MedThr) & MedType %in% c("Over", "Under") & VarMode %in% c("Wil", "PPV")){
     
     if(MedMode == 'Wil' & MedType == "Over"){
-      print(paste("Using genestes overexpressed according to Wilcoxon test. MedThr =", MedThr))
+      print(paste("Using genesets overexpressed according to Wilcoxon test. MedThr =", MedThr))
       SelectedMed <- which(p.adjust(RomaData$PVVectMat[,5], method = PValAdjust)<MedThr)
     }
     
     if(MedMode == 'Wil' & MedType == "Under"){
-      print(paste("Using genestes underexpressed according to Wilcoxon test. MedThr =", MedThr))
+      print(paste("Using genesets underexpressed according to Wilcoxon test. MedThr =", MedThr))
       SelectedMed <- which(p.adjust(RomaData$PVVectMat[,6], method = PValAdjust)<MedThr)
     }
     
     if(MedMode == 'PPV' & MedType == "Over"){
-      print(paste("Using genestes overexpressed according to pseudo pv. MedThr =", MedThr))
+      print(paste("Using genesets overexpressed according to pseudo pv. MedThr =", MedThr))
       SelectedMed <- which(p.adjust(RomaData$ModuleMatrix[,6], method = PValAdjust)<MedThr)
     }
     
     if(MedMode == 'PPV' & MedType == "Under"){
-      print(paste("Using genestes underexpressed according to pseudo pv. MedThr =", MedThr))
+      print(paste("Using genesets underexpressed according to pseudo pv. MedThr =", MedThr))
       SelectedMed <- which(p.adjust(RomaData$ModuleMatrix[,6], method = PValAdjust)<1-MedThr)
     }
     
