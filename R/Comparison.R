@@ -1,7 +1,7 @@
 #' Compare ROMA scores across samples from different populations
 #'
 #' @param RomaData list, the analysis returned by rRoma
-#' @param Groups string vector, a vector of group identifiers
+#' @param Groups string vector, a vector of group identifiers. Must contain the names of the samples.
 #' @param Selected Genesets used to perform the analysis 
 #' @param TestMode string, the type of statistical methodology to assess sample difference. Currently only ANOVA + Tukey is implemented ("Aov+Tuk")
 #' @param TestPV1 numeric between 0 and 1, the threshold PV for the initial test (ANOVA)
@@ -25,11 +25,11 @@ CompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
     print("No Geneset selected")
     return(NULL)
   } else {
-    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset selected"))
+    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset(s) selected"))
   }
   
   tMat <- RomaData$SampleMatrix[Selected,]
-  names(Groups) <- colnames(tMat)
+#  names(Groups) <- colnames(tMat)  Groups doit déjà contenir les noms des samples
   
   MeltData <- reshape::melt(tMat)
   MeltData <- cbind(MeltData, Groups[as.character(MeltData$X2)])
@@ -38,6 +38,8 @@ CompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
   # MeltData <- data.frame(MeltData)
   
   colnames(MeltData) <- c("GeneSet", "Sample", "Value", "Group") 
+  
+  MeltData <- MeltData[!is.na(MeltData$Group), ]
   
   if(TestMode == "Aov+Tuk"){
     
@@ -114,7 +116,7 @@ CompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
       
     }
     
-    print("Performing Type III AOV (R default)")
+    print("Performing Type III AOV (R default) for each geneset")
     
     AOVFitTypeI <- aov(formula = Value ~ Group/GeneSet, data = MeltData)
     
@@ -176,6 +178,8 @@ CompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
         GSPairs <- lapply(strsplit(gsub(":", "-", as.character(Diffs$GGDiff)), c("-")),"[", c(2,4))
         SameGS <- unlist(lapply(lapply(GSPairs,duplicated),any))
         GSVect <- unlist(lapply(GSPairs[SameGS], "[[", 1), use.names = FALSE)
+        
+        print(paste(length(GSVect), "significant differences found between groups within same geneset"))
         
         if(PlotXGSDiff){
           
