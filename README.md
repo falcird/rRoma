@@ -32,10 +32,11 @@ Intalling rROMA
 ===============
 
 The rRoma package relies on the `scater` and `biomaRt` packages, which
-are available only on BioConductor. These packagee can be installed with
+are available only on BioConductor. These packages can be installed with
 the following command
 
     source("https://bioconductor.org/biocLite.R")
+    
 
     ## Bioconductor version 3.5 (BiocInstaller 1.26.1), ?biocLite for help
 
@@ -48,6 +49,21 @@ the following command
     if(!requireNamespace("biomaRt")){
       biocLite("biomaRt")
     }
+    
+    ## If working on R 4.0 and above:
+    
+    if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+    
+    if(!requireNamespace("scater")){
+      BiocManager::install("scater")
+    }
+
+    if(!requireNamespace("biomaRt")){
+      BiocManager::install("biomaRt")
+    }
+
+    
 
 rRoma can then be installed using `devtools`
 
@@ -61,13 +77,17 @@ rRoma can then be installed using `devtools`
 
 To fill missing values rRoma uses the mice package. This package needs
 to be installed manually if datasets with missing values need to be
-analysed:
+analyzed:
+
+    if(!requireNamespace("mice")){
+      install.packages("mice")
+    }
 
     if(!requireNamespace("tictoc")){
       install.packages("tictoc")
     }
 
-Finally, rRoma allow projecting the results of the analysis on [ACSN
+Finally, rRoma allows to project the results of the analysis on [ACSN
 maps](https://acsn.curie.fr). To use this functionality it is necessary
 to install the `RNaviCell` package:
 

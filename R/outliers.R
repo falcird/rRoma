@@ -19,6 +19,7 @@
 #' @param PrintInfo 
 #' @param Mode 
 #' @param cl 
+#' @param ShiftedAsOverdispersed boolean, see description in Recode.R
 #'
 #' @return
 #' @export
@@ -27,7 +28,7 @@
 DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
                            CompatibleGenes, ExpressionData, PCAType = PCAType,
                            PlotData = FALSE, ModuleName = '', PrintInfo = TRUE,
-                           Mode = 1, ClusType, cl = NULL) {
+                           Mode = 1, ClusType, cl = NULL, ShiftedAsOverdispersed) {
   
   if(!(PCAType %in% c("DimensionsAreGenes", "DimensionsAreSamples"))){
     print("Incompatible PCAType, no outlier filtering will be performed")
@@ -47,13 +48,20 @@ DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
       tData <- ExpressionData[-i, ]
     }
     
+    if (!ShiftedAsOverdispersed){
     PC1Var <- var(
       irlba::prcomp_irlba(x = tData, n = 1, work = min(8, min(dim(tData)) - 1),
                           center = ModulePCACenter,
                           scale. = FALSE, retx = TRUE)$x
     )
     return(PC1Var/sum(apply(scale(tData, center = ModulePCACenter, scale = FALSE), 2, var)))
-    
+    }
+    else{
+      PC1 <- irlba::prcomp_irlba(x = tData, n = 1, work = min(8, min(dim(tData)) - 1),
+                                 center = ModulePCACenter,
+                                 scale. = FALSE, retx = TRUE)
+      return(PC1$sdev**2 /PC1$totalvar)
+    }
   }
   
   AllPCA1 <- rep(NA, length(CompatibleGenes))

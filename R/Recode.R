@@ -66,6 +66,7 @@
 #' @param SuppressWarning boolean, should warnings be displayed? This option can be ignored in non-interactive sessions.
 #' @param ShowParallelPB boolean, should the progress bar be displayed when using parallel processing ? Note that the
 #' progress bar is displayed via the pbapply package. This may slow down the computation, especially when using FORK clusters.
+#' @param ShiftedAsOverdispersed boolean, do you want ROMA to consider shifted gene sets as overdispersed ? Available only if FixedCenter is TRUE
 #'
 #' @return
 #' @export
@@ -105,7 +106,8 @@ rRoma.R <- function(ExpressionMatrix,
                     CorMethod = "pearson",
                     PCAType = "DimensionsAreSamples",
                     SuppressWarning = FALSE,
-                    ShowParallelPB = FALSE) {
+                    ShowParallelPB = FALSE,
+                    ShiftedAsOverdispersed = FALSE) {
 
   if(PCADims < 1){
     stop("PCADims should be >= 1")
@@ -288,6 +290,9 @@ rRoma.R <- function(ExpressionMatrix,
     ModulePCACenter = TRUE
     SampleCenters = rep(0, ncol(ExpressionMatrix))
   }
+  else{
+    ShiftedAsOverdispersed = FALSE
+  }
 
   ModuleSummary <- list()
   ModuleMatrix <- NULL
@@ -403,11 +408,11 @@ rRoma.R <- function(ExpressionMatrix,
       SelGenes <- DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = ModulePCACenter,
                                  CompatibleGenes = CompatibleGenes, ExpressionData = ExpressionMatrix[CompatibleGenes, ],
                                  PlotData = PlotData, ModuleName = ModuleList[[i]]$Name, PCAType = PCAType, Mode = 3,
-                                 ClusType = ClusType, cl = cl)
+                                 ClusType = ClusType, cl = cl, ShiftedAsOverdispersed = ShiftedAsOverdispersed)
     } else {
       SelGenes <- DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = ModulePCACenter,
                                  CompatibleGenes = CompatibleGenes, ExpressionData = ExpressionMatrix[CompatibleGenes, ],
-                                 PlotData = PlotData, ModuleName = ModuleList[[i]]$Name, PCAType = PCAType, Mode = 1)
+                                 PlotData = PlotData, ModuleName = ModuleList[[i]]$Name, PCAType = PCAType, Mode = 1, ShiftedAsOverdispersed = ShiftedAsOverdispersed)
     }
     
 
@@ -442,17 +447,34 @@ rRoma.R <- function(ExpressionMatrix,
     if(PCAType == "DimensionsAreSamples"){
       BaseMatrix <- Correction[CompatibleGenes]*ExpressionMatrix[CompatibleGenes, ]
     }
-
-    if(PCADims > min(dim(ExpressionMatrix[CompatibleGenes, ])/3)){
-      PCBase <- prcomp(x = BaseMatrix, center = ModulePCACenter, scale. = FALSE, retx = TRUE)
-    } else {
-      PCBase <- irlba::prcomp_irlba(x = BaseMatrix, n = PCADims,
-                                    work = min(PCADims+7, min(dim(ExpressionMatrix[CompatibleGenes, ]))),
-                                    center = ModulePCACenter, scale. = FALSE, maxit = 10000, retx = TRUE)
+    
+    if(!ShiftedAsOverdispersed){
+      if(PCADims > min(dim(ExpressionMatrix[CompatibleGenes, ])/3)){
+        PCBase <- prcomp(x = BaseMatrix, center = ModulePCACenter, scale. = FALSE, retx = TRUE)
+      } else {
+        PCBase <- irlba::prcomp_irlba(x = BaseMatrix, n = PCADims,
+                                      work = min(PCADims+7, min(dim(ExpressionMatrix[CompatibleGenes, ]))),
+                                      center = ModulePCACenter, scale. = FALSE, maxit = 10000, retx = TRUE)
+      }
+  
+      
+      ExpVar <- apply(PCBase$x[,1:2], 2, var)/sum(apply(scale(BaseMatrix, center = ModulePCACenter, scale = FALSE), 2, var))
     }
-
-    ExpVar <- apply(PCBase$x[,1:2], 2, var)/sum(apply(scale(BaseMatrix, center = ModulePCACenter, scale = FALSE), 2, var))
-
+    else{
+      if(PCADims > min(dim(ExpressionMatrix[CompatibleGenes, ])/3)){
+        PCBase <- prcomp(x = BaseMatrix, center = ModulePCACenter, scale. = FALSE, retx = TRUE)
+        TotVar <- sum(PCBase$sdev **2)
+      } else {
+        PCBase <- irlba::prcomp_irlba(x = BaseMatrix, n = PCADims,
+                                      work = min(PCADims+7, min(dim(ExpressionMatrix[CompatibleGenes, ]))),
+                                      center = ModulePCACenter, scale. = FALSE, maxit = 10000, retx = TRUE)
+        TotVar <- PCBase$totalvar
+      }
+      
+      
+      ExpVar <- (PCBase$sdev[1:2]**2)/TotVar
+      
+    }
     PCBaseUnf <- PCBase
     ExpVarUnf <- ExpVar
 
@@ -473,16 +495,31 @@ rRoma.R <- function(ExpressionMatrix,
       BaseMatrix <- Correction[SelGenes]*ExpressionMatrix[SelGenes, ]
     }
 
-    if(PCADims > min(dim(ExpressionMatrix[SelGenes, ])/3)){
-      PCBase <- prcomp(x = BaseMatrix, center = ModulePCACenter, scale. = FALSE, retx = TRUE)
-    } else {
-      PCBase <- irlba::prcomp_irlba(x = BaseMatrix, n = PCADims,
-                                    work = min(PCADims+7, min(dim(ExpressionMatrix[SelGenes, ]))),
-                                    center = ModulePCACenter, scale. = FALSE, maxit = 10000, retx = TRUE)
+    if(!ShiftedAsOverdispersed){
+      if(PCADims > min(dim(ExpressionMatrix[SelGenes, ])/3)){
+        PCBase <- prcomp(x = BaseMatrix, center = ModulePCACenter, scale. = FALSE, retx = TRUE)
+      } else {
+        PCBase <- irlba::prcomp_irlba(x = BaseMatrix, n = PCADims,
+                                      work = min(PCADims+7, min(dim(ExpressionMatrix[SelGenes, ]))),
+                                      center = ModulePCACenter, scale. = FALSE, maxit = 10000, retx = TRUE)
+      }
+  
+      ExpVar <- apply(PCBase$x[,1:2], 2, var)/sum(apply(scale(BaseMatrix, center = ModulePCACenter, scale = FALSE), 2, var))
     }
-
-    ExpVar <- apply(PCBase$x[,1:2], 2, var)/sum(apply(scale(BaseMatrix, center = ModulePCACenter, scale = FALSE), 2, var))
-
+    else{
+      if(PCADims > min(dim(ExpressionMatrix[SelGenes, ])/3)){
+        PCBase <- prcomp(x = BaseMatrix, center = ModulePCACenter, scale. = FALSE, retx = TRUE)
+        TotVar <- sum(PCBase$sdev **2)
+      } else {
+        PCBase <- irlba::prcomp_irlba(x = BaseMatrix, n = PCADims,
+                                      work = min(PCADims+7, min(dim(ExpressionMatrix[SelGenes, ]))),
+                                      center = ModulePCACenter, scale. = FALSE, maxit = 10000, retx = TRUE)
+        TotVar <- PCBase$totalvar
+      }
+      
+      
+      ExpVar <- (PCBase$sdev[1:2]**2)/TotVar
+    }
     MedianExp <- median(OrgExpMatrix[SelGenes, ])
 
     print("Post-filter data")
@@ -514,7 +551,7 @@ rRoma.R <- function(ExpressionMatrix,
           if(SampleFilter){
             SampleSelGenes <- DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = ModulePCACenter,
                                              CompatibleGenes = Gl, ExpressionData = ExpressionMatrix[Gl, ], PlotData = FALSE,
-                                             ModuleName = '', PrintInfo = FALSE, PCAType = PCAType)
+                                             ModuleName = '', PrintInfo = FALSE, PCAType = PCAType, ShiftedAsOverdispersed = ShiftedAsOverdispersed)
             if(length(SampleSelGenes)<PCADims){
               warning(paste("Size of filtered sample geneset too small (",  length(SampleSelGenes), "). This may cause inconsitencies. Increase MinGenes or GeneOutThr to prevent the problem from happening"))
             }
@@ -541,11 +578,18 @@ rRoma.R <- function(ExpressionMatrix,
           if(length(SampleSelGenes) >= 3*PCADims){
             PCSamp <- irlba::prcomp_irlba(x = BaseMatrix, n = PCADims,
                                           center = ModulePCACenter, scale. = FALSE, retx = TRUE)
+            TotVar <- PCSamp$totalvar
           } else {
             PCSamp <- prcomp(x = BaseMatrix, center = ModulePCACenter, scale. = FALSE, retx = TRUE)
+            TotVar <- sum(PCSamp$sdev **2)
           }
-
-          VarVect <- apply(PCSamp$x[,1:2], 2, var)
+          
+          if(!ShiftedAsOverdispersed){
+            VarVect <- apply(PCSamp$x[,1:2], 2, var)
+          }
+          else{
+            VarVect <- PCSamp$sdev[1:2]**2
+          }
 
           # if(VarVect[2] > VarVect[1]){
             # print(sqrt(VarVect)/PCSamp$sdev)
@@ -614,18 +658,32 @@ rRoma.R <- function(ExpressionMatrix,
               SampleScore2 = NULL
               CorrectSign2 = NULL
             }
-
-            return(list("ExpVar" = VarVect/sum(apply(scale(BaseMatrix, center = ModulePCACenter, scale = FALSE), 2, var)),
+            
+            if(!ShiftedAsOverdispersed){
+              return(list("ExpVar" = VarVect/sum(apply(scale(BaseMatrix, center = ModulePCACenter, scale = FALSE), 2, var)),
                         "MedianExp"= SampMedian,
                         "GenesWei"= cbind(CorrectSign1*GeneScore1, CorrectSign2*GeneScore2),
                         "SampleScore"= cbind(CorrectSign1*SampleScore1, CorrectSign2*SampleScore2))
+            }
+            
+            else{
+              return(list("ExpVar" = VarVect/TotVar,
+                          "MedianExp"= SampMedian,
+                          "GenesWei"= cbind(CorrectSign1*GeneScore1, CorrectSign2*GeneScore2),
+                          "SampleScore"= cbind(CorrectSign1*SampleScore1, CorrectSign2*SampleScore2))
+            }
             )
 
           } else {
 
-            return(list("ExpVar"=VarVect/sum(apply(scale(BaseMatrix, center = ModulePCACenter, scale = FALSE), 2, var)),
-                        "MedianExp"=SampMedian, "GenesWei" = NULL, "SampleScore" = NULL)
-            )
+            if(!ShiftedAsOverdispersed){
+              return(list("ExpVar"=VarVect/sum(apply(scale(BaseMatrix, center = ModulePCACenter, scale = FALSE), 2, var)),
+                        "MedianExp"=SampMedian, "GenesWei" = NULL, "SampleScore" = NULL))
+            }
+            else{
+              return(list("ExpVar"=VarVect/TotVar,
+                          "MedianExp"=SampMedian, "GenesWei" = NULL, "SampleScore" = NULL))
+            }
 
           }
 
