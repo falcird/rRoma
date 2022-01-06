@@ -296,6 +296,24 @@ FixPCSign <-
         ToUse <- (GeneScore >= max(quantile(GeneScore, Thr), 0)) | (GeneScore <= min(0, quantile(GeneScore, 1-Thr)))
       }
       
+      nbUsed <- sum(ToUse) 
+      if(nbUsed<2){
+        if (nbUsed == 1){
+          ExpMat <- scale(apply(ExpMat, 1, median), center = TRUE, scale = FALSE)
+          
+          
+          if(sum(GeneScore[ToUse]*Wei[ToUse]*ExpMat[ToUse], na.rm = TRUE) > 0){
+            return(1)
+          }
+          else{
+            return(-1)
+          }
+        }
+        else{
+          print("No weight considered, PC will be oriented randomly")
+          return(1)
+        }
+      }
       ExpMat <- scale(apply(ExpMat[ToUse, ], 1, median), center = TRUE, scale = FALSE)
       
       

@@ -289,8 +289,6 @@ rRoma.R <- function(ExpressionMatrix,
     print("Using local center (NOT centering over genes)")
     ModulePCACenter = TRUE
     SampleCenters = rep(0, ncol(ExpressionMatrix))
-  }
-  else{
     ShiftedAsOverdispersed = FALSE
   }
 
@@ -371,7 +369,7 @@ rRoma.R <- function(ExpressionMatrix,
       parallel::clusterExport(cl=cl, varlist=c("SampleFilter", "GeneOutDetection", "GeneOutThr",
                                                "ModulePCACenter", "ExpressionMatrix", "DetectOutliers",
                                                "PCADims", "OrgExpMatrix", "FullSampleInfo", "FoundSampNames",
-                                               "PCAType", "GroupPCSign"),
+                                               "PCAType", "GroupPCSign", "ShiftedAsOverdispersed"),
                               envir = environment())
     }
     
@@ -663,16 +661,15 @@ rRoma.R <- function(ExpressionMatrix,
               return(list("ExpVar" = VarVect/sum(apply(scale(BaseMatrix, center = ModulePCACenter, scale = FALSE), 2, var)),
                         "MedianExp"= SampMedian,
                         "GenesWei"= cbind(CorrectSign1*GeneScore1, CorrectSign2*GeneScore2),
-                        "SampleScore"= cbind(CorrectSign1*SampleScore1, CorrectSign2*SampleScore2))
+                        "SampleScore"= cbind(CorrectSign1*SampleScore1, CorrectSign2*SampleScore2)))
             }
             
             else{
               return(list("ExpVar" = VarVect/TotVar,
                           "MedianExp"= SampMedian,
                           "GenesWei"= cbind(CorrectSign1*GeneScore1, CorrectSign2*GeneScore2),
-                          "SampleScore"= cbind(CorrectSign1*SampleScore1, CorrectSign2*SampleScore2))
+                          "SampleScore"= cbind(CorrectSign1*SampleScore1, CorrectSign2*SampleScore2)))
             }
-            )
 
           } else {
 
