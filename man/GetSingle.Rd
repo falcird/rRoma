@@ -9,6 +9,9 @@ GetSingle(x)
 \arguments{
 \item{x}{input vector}
 }
+\value{
+
+}
 \description{
 Return its input if it is a single value, else return NA
 }

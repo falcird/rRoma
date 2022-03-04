@@ -4,8 +4,16 @@
 \alias{ExploreGeneProperties}
 \title{Title}
 \usage{
-ExploreGeneProperties(RomaData, GeneName, ExpressionMatrix, Selected = NULL,
-  GroupInfo = NULL, DO_tSNE = FALSE, initial_dims = 50, perplexity = 30)
+ExploreGeneProperties(
+  RomaData,
+  GeneName,
+  ExpressionMatrix,
+  Selected = NULL,
+  GroupInfo = NULL,
+  DO_tSNE = FALSE,
+  initial_dims = 50,
+  perplexity = 30
+)
 }
 \arguments{
 \item{RomaData}{}
@@ -23,6 +31,9 @@ ExploreGeneProperties(RomaData, GeneName, ExpressionMatrix, Selected = NULL,
 \item{initial_dims}{}
 
 \item{perplexity}{}
+}
+\value{
+
 }
 \description{
 Title

@@ -4,8 +4,17 @@
 \alias{FixPCSign}
 \title{Correct the sign of the principal component}
 \usage{
-FixPCSign(GeneScore, SampleScore, Wei = NULL, Mode = "none", DefWei = 1,
-  Thr = NULL, Grouping = NULL, ExpMat = NULL, CorMethod = "pearson")
+FixPCSign(
+  GeneScore,
+  SampleScore,
+  Wei = NULL,
+  Mode = "none",
+  DefWei = 1,
+  Thr = NULL,
+  Grouping = NULL,
+  ExpMat = NULL,
+  CorMethod = "pearson"
+)
 }
 \arguments{
 \item{GeneScore}{}
@@ -27,6 +36,9 @@ FixPCSign(GeneScore, SampleScore, Wei = NULL, Mode = "none", DefWei = 1,
 \item{CorMethod}{c("pearson", "kendall", "spearman")}
 
 \item{PCAType}{character string, the type of PCA to perform. It can be "DimensionsAreGenes" or "DimensionsAreSamples"}
+}
+\value{
+
 }
 \description{
 Correct the sign of the principal component

@@ -4,9 +4,16 @@
 \alias{ConvertModuleNames}
 \title{Conversion between gene naming convenctions and organisms of Modulelist}
 \usage{
-ConvertModuleNames(ModuleList, SourceOrganism = "hsapiens",
-  TargetOrganism = "mmusculus", SourceTypes = "Names",
-  TargetTypes = "Names", HomologyLevel = 0, HOST = NULL, PATH = NULL)
+ConvertModuleNames(
+  ModuleList,
+  SourceOrganism = "hsapiens",
+  TargetOrganism = "mmusculus",
+  SourceTypes = "Names",
+  TargetTypes = "Names",
+  HomologyLevel = 0,
+  HOST = NULL,
+  PATH = NULL
+)
 }
 \arguments{
 \item{ModuleList}{The module list to be convert.}
@@ -24,6 +31,9 @@ ConvertModuleNames(ModuleList, SourceOrganism = "hsapiens",
 \item{HOST}{alterntive host is the default one doe snot work}
 
 \item{PATH}{path of the alterntive host}
+}
+\value{
+
 }
 \description{
 Conversion between gene naming convenctions and organisms of Modulelist

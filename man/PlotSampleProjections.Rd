@@ -4,8 +4,14 @@
 \alias{PlotSampleProjections}
 \title{Plot sample score across selected samples}
 \usage{
-PlotSampleProjections(RomaData, PlotSamples = 40, ExpressionMatrix = NULL,
-  LogExpression = TRUE, Selected = NULL)
+PlotSampleProjections(
+  RomaData,
+  PlotSamples = 40,
+  ExpressionMatrix = NULL,
+  LogExpression = TRUE,
+  Selected = NULL,
+  FullExpDist = FALSE
+)
 }
 \arguments{
 \item{RomaData}{list, the analysis returned by rRoma}
@@ -17,6 +23,12 @@ PlotSampleProjections(RomaData, PlotSamples = 40, ExpressionMatrix = NULL,
 \item{LogExpression}{boolean, should gene expression be logtransformed?}
 
 \item{Selected}{vector, integer. The position of the genesets to plot}
+
+\item{FullExpDist}{boolean, should the all the genes be used when showing gene expression
+distribution (TRUE) or only the genes of the geneset under consideration (FALSE) ?}
+}
+\value{
+
 }
 \description{
 Plot sample score across selected samples

@@ -4,21 +4,50 @@
 \alias{rRoma.R}
 \title{Perform ROMA on a datasets}
 \usage{
-rRoma.R(ExpressionMatrix, ModuleList, centerData = TRUE, ExpFilter = FALSE,
-  UseWeigths = FALSE, DefaultWeight = 1, MinGenes = 10, MaxGenes = 1000,
-  ApproxSamples = 5, nSamples = 100, OutGeneNumber = 5, Ncomp = 10,
-  OutGeneSpace = NULL, FixedCenter = TRUE,
-  GeneOutDetection = "L1OutExpOut", GeneOutThr = 5, GeneSelMode = "All",
-  SampleFilter = TRUE, MoreInfo = FALSE, PlotData = FALSE, PCADims = 2,
-  PCSignMode = "none", PCSignThr = NULL, UseParallel = FALSE,
-  nCores = NULL, ClusType = "PSOCK", SamplingGeneWeights = NULL,
-  FillNAMethod = list(), Grouping = NULL, FullSampleInfo = FALSE,
-  GroupPCSign = FALSE, CorMethod = "pearson",
-  PCAType = "DimensionsAreGenes", SuppressWarning = FALSE,
-  ShowParallelPB = TRUE)
+rRoma.R(
+  ExpressionMatrix,
+  ModuleList,
+  centerData = TRUE,
+  ExpFilter = FALSE,
+  UseWeights = FALSE,
+  DefaultWeight = 1,
+  MinGenes = 10,
+  MaxGenes = 1000,
+  ApproxSamples = 5,
+  nSamples = 100,
+  OutGeneNumber = 5,
+  Ncomp = 10,
+  OutGeneSpace = NULL,
+  FixedCenter = TRUE,
+  GeneOutDetection = "L1OutExpOut",
+  GeneOutThr = 5,
+  GeneSelMode = "All",
+  SampleFilter = TRUE,
+  MoreInfo = FALSE,
+  PlotData = FALSE,
+  PCADims = 2,
+  PCSignMode = "none",
+  PCSignThr = 0.9,
+  UseParallel = FALSE,
+  nCores = NULL,
+  ClusType = "PSOCK",
+  SamplingGeneWeights = NULL,
+  FillNAMethod = list(),
+  Grouping = NULL,
+  FullSampleInfo = FALSE,
+  GroupPCSign = FALSE,
+  CorMethod = "pearson",
+  PCAType = "DimensionsAreSamples",
+  SuppressWarning = FALSE,
+  ShowParallelPB = FALSE,
+  ShiftedAsOverdispersed = FALSE,
+  OutlierRarelyFoundThr = 5,
+  OutlierPercThr = 0.75,
+  OutlierStrict = FALSE
+)
 }
 \arguments{
-\item{ExpressionMatrix}{matrix, a numeric matrix containing the gene expression information. Columns indicate samples and rows indicated genes.}
+\item{ExpressionMatrix}{matrix, a numeric matrix containing the gene expression information. Columns indicate samples and rows indicate genes.}
 
 \item{ModuleList}{list, gene module list}
 
@@ -26,36 +55,36 @@ rRoma.R(ExpressionMatrix, ModuleList, centerData = TRUE, ExpFilter = FALSE,
 
 \item{ExpFilter}{logical, should the samples be filtered?}
 
-\item{UseWeigths}{logical, should the weigths be used for PCA calculation?}
+\item{UseWeights}{logical, should the weights be used for PCA calculation?}
 
-\item{DefaultWeight}{integer scalar, the default weigth to us if no weith is specified by the modile file and an algorithm requiring weigths is used}
+\item{DefaultWeight}{integer scalar, the default weight to us if no weight is specified by the modole file and an algorithm requiring weights is used}
 
 \item{MinGenes}{integer, the minimum number of genes reported by a module available in the expression matrix to process the module}
 
 \item{MaxGenes}{integer, the maximum number of genes reported by a module available in the expression matrix to process the module}
 
-\item{ApproxSamples}{integer between 0 and 100 the approximation parameter to reuse samples. This is the minimal percentage variation to reuse samples.
-For example 5, means that samples re recalculated only if the number of genes in the geneset has increased by at least 5\%.}
+\item{ApproxSamples}{integer (between 0 and 100), the approximation parameter to reuse samples. This is the minimal percentage variation to reuse samples.
+For example, 5 means that samples are re recalculated only if the number of genes in the geneset has increased by at least 5\%.}
 
-\item{nSamples}{integer, the number of randomized gene sampled (per module)}
+\item{nSamples}{integer, the number of randomized genes sampled (per module)}
 
 \item{OutGeneNumber}{scalar, number of median-absolute-deviations away from median required for the total number of genes expressed in a sample to be called an outlier}
 
-\item{Ncomp}{iteger, number of principal components used to filter samples in the gene expression space}
+\item{Ncomp}{integer, number of principal components used to filter samples in the gene expression space}
 
 \item{OutGeneSpace}{scalar, number of median-absolute-deviations away from median required for in a sample to be called
 an outlier in the gene expression space. If set to NULL, the gene space filtering will not be performed.}
 
-\item{FixedCenter}{logical, should PCA with fixed center be used?}
+\item{FixedCenter}{logical, should PCA with fixed center be used ?}
 
 \item{GeneOutDetection}{character scalar, the algorithm used to filter genes in a module. Possible values are
 \itemize{
 \item 'L1OutVarPerc': percentage variation relative to the median variance explained supported by a leave one out approach
 \item 'L1OutVarDC': dendrogram clustering statistics on variance explained supported by a leave one out approach
-\item 'L1OutExpOut': number of median-absolute-deviations away from median explined variance
+\item 'L1OutExpOut': number of median-absolute-deviations away from median explained variance
 \item 'L1OutSdMean': Number of standard deviations away from the mean
 }
-The option "L1OutExpOut" requires the scater package to be installed.}
+The option "L1OutExpOut" requires the scater package.}
 
 \item{GeneOutThr}{scalar, threshold used by gene filtering algorithm in the modules. It can represent maximum size of filtered cluster ("L1OutVarDC"),
 minimal percentage variation (L1OutVarPerc) or the number of median-absolute-deviations away from median ("L1OutExpOut")}
@@ -64,60 +93,71 @@ minimal percentage variation (L1OutVarPerc) or the number of median-absolute-dev
 
 \item{SampleFilter}{logical, should outlier detection be applied to sampled data as well?}
 
-\item{MoreInfo}{logical, shuold detailed information on the computation by printed?}
+\item{MoreInfo}{logical, should detailed information on the computation be printed?}
 
-\item{PlotData}{logical, shuold debugging plots by produced ?}
+\item{PlotData}{logical, should debugging plots be produced ?}
 
-\item{PCADims}{integer, the number of PCA dimensions to compute. Should be >= 2. Note that, the value 1 is allowed,
+\item{PCADims}{integer, the number of PCA dimensions to compute. Should be >= 2. Note that the value 1 is allowed,
 but is not advisable under normal circumstances.
 Larger values decrease the error in the estimation of the explained variance but increase the computation time.}
 
-\item{PCSignMode}{characrter scalar, the modality to use to determine the direction of the principal components. The following options are currentlhy available:
+\item{PCSignMode}{character scalar, the modality to use to determine the direction of the principal components. The following options are currently available:
 \itemize{
 \item 'none' (The direction is chosen at random)
-\item 'PreferActivation': the direction is chosen in such a way that the sum of the projection is positive
-\item 'UseAllWeights': as 'PreferActivation', but the projections are multiplied by the weigths, missing weights are set to DefaultWeight
-\item 'UseKnownWeights': as 'UseAllWeights', but missing weigth are set to 0
-\item 'CorrelateAllWeightsByGene': the direction is chosen in such a way to maximise the positive correlation between the expression of genes with a positive (negative) weights
+\item 'PreferActivation': the direction is chosen in such a way that the sum of the projections is positive
+\item 'UseAllWeights': as 'PreferActivation', but the projections are multiplied by the weights, missing weights are set to DefaultWeight
+\item 'UseKnownWeights': as 'UseAllWeights', but missing weights are set to 0
+\item 'CorrelateAllWeightsByGene': the direction is chosen in such a way as to maximize the positive correlation between the expression of genes with positive (negative) weights
 and the (reversed) PC projections, missing weights are set to DefaultWeight
 \item 'CorrelateKnownWeightsByGene': as 'CorrelateAllWeights', but missing weights are set to 0
-\item 'CorrelateAllWeightsBySample': the direction is chosen in such a way to maximise the positive correlation between the expression of genes and the PC corrected weigth
-(i.e., PC weigths are multiplied by gene weigths), missing weights are set to DefaultWeight
+\item 'CorrelateAllWeightsBySample': the direction is chosen in such a way as to maximize the positive correlation between the expression of genes and the PC corrected weight
+(i.e., PC weights are multiplied by gene weights), missing weights are set to DefaultWeight
 \item 'CorrelateKnownWeightsBySample': as 'CorrelateAllWeightsBySample', but missing weights are set to 0
 }
 If 'CorrelateAllWeights', 'CorrelateKnownWeights', 'CorrelateAllWeightsBySample' or 'CorrelateKnownWeightsBySample' are used
-and GroupPCSign is TRUE, the correltions will be computed on the groups defined by Grouping.}
+and GroupPCSign is TRUE, the correlations will be computed on the groups defined by Grouping.}
 
 \item{PCSignThr}{numeric scalar, a quantile threshold to limit the projections (or weights) to use, e.g., if equal to .9
-only the 10\% of genes with the largest projection (or weights) in absolute value will be considered.}
+only the 10\% of genes with the largest projections (or weights) in terms of absolute value will be considered.}
 
-\item{UseParallel}{boolean, shuold a parallel environment be used? Note that using a parallel environment will increase the memorey usage as a
+\item{UseParallel}{boolean, should a parallel environment be used ? Note that using a parallel environment will increase the memory usage as a
 copy of the gene expression matrix is needed for each core}
 
 \item{nCores}{integer, the number of cores to use if UseParallel is TRUE. Set to NULL for auto-detection}
 
-\item{ClusType}{string, the cluster type to use. The default value ("PSOCK") should be available on most systems, unix-like environments also support the "FORK",
+\item{ClusType}{string, the cluster type to use. The default value ("PSOCK") should be available on most systems, unix-like environments also support "FORK",
 which should be faster.}
 
-\item{SamplingGeneWeights}{named vector, numeric. Weigth so use when correcting the sign of the PC for sampled data.}
+\item{SamplingGeneWeights}{named vector, numeric. Weight to use when correcting the sign of the PC for sampled data.}
 
-\item{FillNAMethod}{names list, additional parameters to pass to the mice function}
+\item{FillNAMethod}{name list, additional parameters to pass to the mice function}
 
-\item{Grouping}{named vector, the groups associated with the sample.}
+\item{Grouping}{name vector, the groups associated with the sample.}
 
-\item{FullSampleInfo}{boolean, should full PC information be computed and saved for all the randomised genesets?}
+\item{FullSampleInfo}{boolean, should full PC information be computed and saved for all randomized genesets?}
 
-\item{GroupPCSign}{boolean, should grouping information to be used to orient PCs?}
+\item{GroupPCSign}{boolean, should grouping information be used to orient PCs?}
 
 \item{CorMethod}{character string indicating which correlation coefficient is to be used
-for orienting the principal components. Can be "pearson", "kendall", or "spearman".}
+to orient the principal components. Can be "pearson", "kendall", or "spearman".}
 
 \item{PCAType}{character string, the type of PCA to perform. It can be "DimensionsAreGenes" or "DimensionsAreSamples"}
 
-\item{SuppressWarning}{boolean, should warnings be displayed? This option well be ignored in non-interactive sessions.}
+\item{SuppressWarning}{boolean, should warnings be displayed? This option can be ignored in non-interactive sessions.}
 
-\item{ShowParallelPB}{boolean, should the progress bas be displayed when using parallel processing. Note that the
-progress bar is diaplayed via the pbapply package. This may slow donwn the computation, expecially with FORK clusters.}
+\item{ShowParallelPB}{boolean, should the progress bar be displayed when using parallel processing ? Note that the
+progress bar is displayed via the pbapply package. This may slow down the computation, especially when using FORK clusters.}
+
+\item{ShiftedAsOverdispersed}{boolean, do you want ROMA to consider shifted gene sets as overdispersed ? Available only if FixedCenter is TRUE}
+
+\item{OutlierRarelyFoundThr}{numeric scalar, the minimum number of pathways in which a gene has to be found to potentially be considered as an outlier}
+
+\item{OutlierPercThr}{numeric scalar, the minimum ratio of pathways in which a gene has to be considered outlier to be considered as a global outlier}
+
+\item{OutlierStrict}{boolean, should outliers be removed from all pathways or only those in which they are considered to be outliers ?}
+}
+\value{
+
 }
 \description{
 Perform ROMA on a datasets

@@ -4,16 +4,40 @@
 \alias{PCrRoma.R}
 \title{Perform PcROMA on a datasets}
 \usage{
-PCrRoma.R(ExpressionMatrix, centerData = TRUE, ExpFilter = FALSE,
-  ModuleList, UseWeigths = FALSE, DefaultWeight = 1, MinGenes = 10,
-  MaxGenes = 1000, ApproxSamples = 5, nSamples = 100, OutGeneNumber = 5,
-  Ncomp = 10, OutGeneSpace = NULL, FixedCenter = TRUE,
-  GeneOutDetection = "L1OutExpOut", GeneOutThr = 5, GeneSelMode = "All",
-  SampleFilter = TRUE, MoreInfo = FALSE, PlotData = FALSE, PCADims = 2,
-  PCSignMode = "none", PCSignThr = NULL, UseParallel = FALSE,
-  nCores = NULL, ClusType = "PSOCK", SamplingGeneWeights = NULL,
-  FillNAMethod = list(), Grouping = NULL, FullSampleInfo = FALSE,
-  GroupPCSign = FALSE, CorMethod = "pearson")
+PCrRoma.R(
+  ExpressionMatrix,
+  centerData = TRUE,
+  ExpFilter = FALSE,
+  ModuleList,
+  UseWeights = FALSE,
+  DefaultWeight = 1,
+  MinGenes = 10,
+  MaxGenes = 1000,
+  ApproxSamples = 5,
+  nSamples = 100,
+  OutGeneNumber = 5,
+  Ncomp = 10,
+  OutGeneSpace = NULL,
+  FixedCenter = TRUE,
+  GeneOutDetection = "L1OutExpOut",
+  GeneOutThr = 5,
+  GeneSelMode = "All",
+  SampleFilter = TRUE,
+  MoreInfo = FALSE,
+  PlotData = FALSE,
+  PCADims = 2,
+  PCSignMode = "none",
+  PCSignThr = NULL,
+  UseParallel = FALSE,
+  nCores = NULL,
+  ClusType = "PSOCK",
+  SamplingGeneWeights = NULL,
+  FillNAMethod = list(),
+  Grouping = NULL,
+  FullSampleInfo = FALSE,
+  GroupPCSign = FALSE,
+  CorMethod = "pearson"
+)
 }
 \arguments{
 \item{ExpressionMatrix}{matrix, a numeric matrix containing the gene expression information. Columns indicate samples and rows indicated genes.}
@@ -24,9 +48,9 @@ PCrRoma.R(ExpressionMatrix, centerData = TRUE, ExpFilter = FALSE,
 
 \item{ModuleList}{list, gene module list}
 
-\item{UseWeigths}{logical, should the weigths be used for PCA calculation?}
+\item{UseWeights}{logical, should the weights be used for PCA calculation?}
 
-\item{DefaultWeight}{integer scalar, the default weigth to us if no weith is specified by the modile file and an algorithm requiring weigths is used}
+\item{DefaultWeight}{integer scalar, the default weight to us if no weith is specified by the modile file and an algorithm requiring weights is used}
 
 \item{MinGenes}{integer, the minimum number of genes reported by a module available in the expression matrix to process the module}
 
@@ -74,13 +98,13 @@ Larger values decrease the error in the estimation of the explained variance but
 \itemize{
 \item 'none' (The direction is chosen at random)
 \item 'PreferActivation': the direction is chosen in such a way that the sum of the projection is positive
-\item 'UseAllWeights': as 'PreferActivation', but the projections are multiplied by the weigths, missing weights are set to DefaultWeight
-\item 'UseKnownWeights': as 'UseAllWeights', but missing weigth are set to 0
+\item 'UseAllWeights': as 'PreferActivation', but the projections are multiplied by the weights, missing weights are set to DefaultWeight
+\item 'UseKnownWeights': as 'UseAllWeights', but missing weight are set to 0
 \item 'CorrelateAllWeightsByGene': the direction is chosen in such a way to maximise the positive correlation between the expression of genes with a positive (negative) weights
 and the (reversed) PC projections, missing weights are set to DefaultWeight
 \item 'CorrelateKnownWeightsByGene': as 'CorrelateAllWeights', but missing weights are set to 0
-\item 'CorrelateAllWeightsBySample': the direction is chosen in such a way to maximise the positive correlation between the expression of genes and the PC corrected weigth
-(i.e., PC weigths are multiplied by gene weigths), missing weights are set to DefaultWeight
+\item 'CorrelateAllWeightsBySample': the direction is chosen in such a way to maximise the positive correlation between the expression of genes and the PC corrected weight
+(i.e., PC weights are multiplied by gene weights), missing weights are set to DefaultWeight
 \item 'CorrelateKnownWeightsBySample': as 'CorrelateAllWeightsBySample', but missing weights are set to 0
 }
 If 'CorrelateAllWeights', 'CorrelateKnownWeights', 'CorrelateAllWeightsBySample' or 'CorrelateKnownWeightsBySample' are used
@@ -97,7 +121,7 @@ copy of the gene expression matrix is needed for each core}
 \item{ClusType}{string, the cluster type to use. The default value ("PSOCK") should be available on most systems, unix-like environments also support the "FORK",
 which should be faster.}
 
-\item{SamplingGeneWeights}{named vector, numeric. Weigth so use when correcting the sign of the PC for sampled data.}
+\item{SamplingGeneWeights}{named vector, numeric. Weight so use when correcting the sign of the PC for sampled data.}
 
 \item{FillNAMethod}{names list, additional parameters to pass to the mice function}
 
@@ -109,6 +133,9 @@ which should be faster.}
 
 \item{CorMethod}{character string indicating which correlation coefficient is to be used
 for orienting the principal components. Can be "pearson", "kendall", or "spearman".}
+}
+\value{
+
 }
 \description{
 Perform PcROMA on a datasets

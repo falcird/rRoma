@@ -4,7 +4,7 @@
 \alias{SelectFromMSIGdb}
 \title{Return a subset of Msigdb containing the provided search string}
 \usage{
-SelectFromMSIGdb(SearchString, Version = "6.0", Mode = "ANY")
+SelectFromMSIGdb(SearchString, Version = "6.2", Mode = "ANY")
 }
 \arguments{
 \item{SearchString}{string vector, the keywords to search}
@@ -14,6 +14,9 @@ SelectFromMSIGdb(SearchString, Version = "6.0", Mode = "ANY")
 \item{Mode}{string scalar, the search mode for the keywords.
 It can be "ALL" (genesets with all the keywords will be returned) or
 "ANY" (genesets with at at least one keyword will be returned)}
+}
+\value{
+
 }
 \description{
 Return a subset of Msigdb containing the provided search string

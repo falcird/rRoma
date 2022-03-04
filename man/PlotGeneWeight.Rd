@@ -2,10 +2,16 @@
 % Please edit documentation in R/Plotting.R
 \name{PlotGeneWeight}
 \alias{PlotGeneWeight}
-\title{Plot gene weigth across selected samples}
+\title{Plot gene weight across selected samples}
 \usage{
-PlotGeneWeight(RomaData, PlotGenes = 40, ExpressionMatrix = NULL,
-  LogExpression = TRUE, Selected = NULL, PlotWeigthSign = FALSE)
+PlotGeneWeight(
+  RomaData,
+  PlotGenes = 40,
+  ExpressionMatrix = NULL,
+  LogExpression = TRUE,
+  Selected = NULL,
+  PlotWeightSign = FALSE
+)
 }
 \arguments{
 \item{RomaData}{list, the analysis returned by rRoma}
@@ -18,8 +24,11 @@ PlotGeneWeight(RomaData, PlotGenes = 40, ExpressionMatrix = NULL,
 
 \item{Selected}{vector, integer. The position of the genesets to plot}
 
-\item{PlotWeigthSign}{boolean, should the sign of the genes weigth be used to color the plots?}
+\item{PlotWeightSign}{boolean, should the sign of the genes weight be used to color the plots?}
+}
+\value{
+
 }
 \description{
-Plot gene weigth across selected samples
+Plot gene weight across selected samples
 }

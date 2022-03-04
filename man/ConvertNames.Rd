@@ -4,9 +4,16 @@
 \alias{ConvertNames}
 \title{Conversion between gene naming convenctions and organisms}
 \usage{
-ConvertNames(SourceOrganism = "hsapiens", TargetOrganism = "mmusculus",
-  Genes, SourceTypes = "Names", TargetTypes = "Names", HomologyLevel = 0,
-  HOST = NULL, PATH = NULL)
+ConvertNames(
+  SourceOrganism = "hsapiens",
+  TargetOrganism = "mmusculus",
+  Genes,
+  SourceTypes = "Names",
+  TargetTypes = "Names",
+  HomologyLevel = 0,
+  HOST = NULL,
+  PATH = NULL
+)
 }
 \arguments{
 \item{SourceOrganism}{Source organism (e.g., "hsapens" or "mmusculus"). Default is "hsapens".}
@@ -24,6 +31,9 @@ ConvertNames(SourceOrganism = "hsapiens", TargetOrganism = "mmusculus",
 \item{HOST}{alterntive host is the default one doe snot work}
 
 \item{PATH}{path of the alterntive host}
+}
+\value{
+
 }
 \description{
 Conversion between gene naming convenctions and organisms

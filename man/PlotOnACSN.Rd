@@ -4,11 +4,23 @@
 \alias{PlotOnACSN}
 \title{Project ROMA results onto ACSN maps}
 \usage{
-PlotOnACSN(RomaData, SampleName, AggScoreFun = "mean", QTop = NULL,
-  QBottom = NULL, MapURL = "", Selected = NULL, FilterByWei = NULL,
-  AggGeneFun = "mean", DispMode = "Module", DataName = "Sample",
-  DefDispVal = 0, PlotInfo = TRUE, ReturnInfo = FALSE,
-  LocalRange = FALSE)
+PlotOnACSN(
+  RomaData,
+  SampleName,
+  AggScoreFun = "mean",
+  QTop = NULL,
+  QBottom = NULL,
+  MapURL = "",
+  Selected = NULL,
+  FilterByWei = NULL,
+  AggGeneFun = "mean",
+  DispMode = "Module",
+  DataName = "Sample",
+  DefDispVal = 0,
+  PlotInfo = TRUE,
+  ReturnInfo = FALSE,
+  LocalRange = FALSE
+)
 }
 \arguments{
 \item{RomaData}{list, the analysis returned by rRoma}
@@ -42,7 +54,7 @@ required for a value to be called an outlier and filtered. If NULL genes are not
 It can be any combination of the following:
 \itemize{
 \item 'Module': gene score is obtained by aggregating the score of selected modules containing that gene. The aggregating function is specified by the AggGeneFun parameter. 
-\item 'Gene': gene score is obtained by aggregating the weigth of the genes across the selected modules. The aggregating function is specified by the AggGeneFun parameter. 
+\item 'Gene': gene score is obtained by aggregating the weight of the genes across the selected modules. The aggregating function is specified by the AggGeneFun parameter. 
 }}
 
 \item{DataName}{string, scalar. The name of the dataset that will be reported in the web interface}
@@ -54,6 +66,9 @@ It can be any combination of the following:
 \item{ReturnInfo}{boolean scalar. Should information be returned?}
 
 \item{LocalRange}{boolean scalar. Should color bounds be relative to the considered samples only?}
+}
+\value{
+
 }
 \description{
 Project ROMA results onto ACSN maps

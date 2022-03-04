@@ -2,10 +2,9 @@
 % Please edit documentation in R/Plotting.R
 \name{PlotRecurringGenes}
 \alias{PlotRecurringGenes}
-\title{Plot the weigth of genes appearing across multiple genesets}
+\title{Plot the weight of genes appearing across multiple genesets}
 \usage{
-PlotRecurringGenes(RomaData, Selected = NULL, GenesByGroup = 20,
-  MinMult = 2)
+PlotRecurringGenes(RomaData, Selected = NULL, GenesByGroup = 20, MinMult = 2)
 }
 \arguments{
 \item{RomaData}{list, the analysis returned by rRoma}
@@ -16,6 +15,9 @@ PlotRecurringGenes(RomaData, Selected = NULL, GenesByGroup = 20,
 
 \item{MinMult}{scalar, integer. The minimal multiplicity to plot}
 }
+\value{
+
+}
 \description{
-Plot the weigth of genes appearing across multiple genesets
+Plot the weight of genes appearing across multiple genesets
 }

@@ -4,26 +4,36 @@
 \alias{CompareAcrossSamples}
 \title{Compare ROMA scores across samples from different populations}
 \usage{
-CompareAcrossSamples(RomaData, Groups, Selected = NULL,
-  TestMode = "Aov+Tuk", TestPV1 = 0.05, TestPV2 = 0.05,
-  PlotDiag = FALSE, PlotXGSDiff = FALSE)
+CompareAcrossSamples(
+  RomaData,
+  Groups,
+  Selected = NULL,
+  TestMode = "Aov+Tuk",
+  TestPV1 = 0.05,
+  TestPV2 = 0.05,
+  PlotDiag = FALSE,
+  PlotXGSDiff = FALSE
+)
 }
 \arguments{
 \item{RomaData}{list, the analysis returned by rRoma}
 
-\item{Groups}{string vector, a vector of group identifier described by strings}
+\item{Groups}{string vector, a vector of group identifiers. Must contain the names of the samples.}
 
-\item{Selected}{The genesets used to perform the analysis}
+\item{Selected}{Genesets used to perform the analysis}
 
-\item{TestMode}{string, the type of statistical methodology to assess sample difference. Currentyl only ANOVA + Tukey is implemented ("Aov+Tuk")}
+\item{TestMode}{string, the type of statistical methodology to assess sample difference. Currently only ANOVA + Tukey is implemented ("Aov+Tuk")}
 
 \item{TestPV1}{numeric between 0 and 1, the threshold PV for the initial test (ANOVA)}
 
 \item{TestPV2}{numeric between 0 and 1, the threshold PV for difference test (Tukey)}
 
-\item{PlotDiag}{boolean, should diagnostic plot be displyed?}
+\item{PlotDiag}{boolean, should diagnostic plot be displayed?}
 
-\item{PlotXGSDiff}{boolean, should all the significant differences by considered?}
+\item{PlotXGSDiff}{boolean, should all significant differences by considered?}
+}
+\value{
+
 }
 \description{
 Compare ROMA scores across samples from different populations

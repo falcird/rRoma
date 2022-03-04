@@ -4,9 +4,21 @@
 \alias{DetectOutliers}
 \title{Detect outliers}
 \usage{
-DetectOutliers(GeneOutDetection, GeneOutThr, ModulePCACenter, CompatibleGenes,
-  ExpressionData, PCAType = PCAType, PlotData = FALSE, ModuleName = "",
-  PrintInfo = TRUE, Mode = 1, cl = NULL)
+DetectOutliers(
+  GeneOutDetection,
+  GeneOutThr,
+  ModulePCACenter,
+  CompatibleGenes,
+  ExpressionData,
+  PCAType = PCAType,
+  PlotData = FALSE,
+  ModuleName = "",
+  PrintInfo = TRUE,
+  Mode = 1,
+  ClusType,
+  cl = NULL,
+  ShiftedAsOverdispersed
+)
 }
 \arguments{
 \item{GeneOutDetection}{character scalar, the algorithm used to filter genes in a module. Possible values are
@@ -36,6 +48,11 @@ minimal percentage variation (L1OutVarPerc) or the number of median-absolute-dev
 \item{Mode}{}
 
 \item{cl}{}
+
+\item{ShiftedAsOverdispersed}{boolean, see description in Recode.R}
+}
+\value{
+
 }
 \description{
 Detect outliers

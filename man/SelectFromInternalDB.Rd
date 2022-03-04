@@ -4,8 +4,12 @@
 \alias{SelectFromInternalDB}
 \title{Return a an internal DB using the provided search string}
 \usage{
-SelectFromInternalDB(SearchString, BDName = "MsigDB", Version = NULL,
-  Mode = "ANY")
+SelectFromInternalDB(
+  SearchString,
+  BDName = "MsigDB",
+  Version = NULL,
+  Mode = "ANY"
+)
 }
 \arguments{
 \item{SearchString}{string vector, the keywords to search}
@@ -26,6 +30,9 @@ SelectFromInternalDB(SearchString, BDName = "MsigDB", Version = NULL,
 \item{Mode}{string scalar, the search mode for the keywords.
 It can be "ALL" (genesets with all the keywords will be returned) or
 "ANY" (genesets with at at least one keyword will be returned)}
+}
+\value{
+
 }
 \description{
 Return a an internal DB using the provided search string

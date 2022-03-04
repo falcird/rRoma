@@ -4,11 +4,20 @@
 \alias{GetTopContrib}
 \title{Get the top contributing genes per geneset}
 \usage{
-GetTopContrib(RomaData, Selected = NULL, nGenes = 0.1, Mode = "Wei",
-  Plot = FALSE, ExpressionMatrix = NULL,
-  ColorGradient = colorRamps::blue2red(50), cluster_cols = FALSE,
-  HMTite = "Top contributing genes", OrderType = "Abs", Transpose = FALSE,
-  CorMethod = "pearson")
+GetTopContrib(
+  RomaData,
+  Selected = NULL,
+  nGenes = 0.1,
+  Mode = "Wei",
+  Plot = FALSE,
+  ExpressionMatrix = NULL,
+  ColorGradient = colorRamps::blue2red(50),
+  cluster_cols = FALSE,
+  HMTite = "Top contributing genes",
+  OrderType = "Abs",
+  Transpose = FALSE,
+  CorMethod = "pearson"
+)
 }
 \arguments{
 \item{RomaData}{list, the analysis returned by rRoma}
@@ -21,7 +30,7 @@ If the parameter is a value between 1 and 0 it will be interpreted as the ratio 
 geneset (e.g., .1 indicates 10\% of the genes of the geneset)).}
 
 \item{Mode}{string, the mode used to determine the top contributing genes. It can be "Wei"
-(gene weigths will be used) or "Cor" (pearson correlation between gene expression and module score will be used)}
+(gene weights will be used) or "Cor" (pearson correlation between gene expression and module score will be used)}
 
 \item{Plot}{boolean, shoul the summary heatmap be plotted?}
 
@@ -42,6 +51,9 @@ The current implementation allow "Abs" (genes with the largest weight in absolut
 \item{CorMethod}{string, the method to use to compute the correlation ("pearson", "kendall",
 or "spearman"). Methods other than "pearson" will produce potenital problems in the derivation
 of statistics accociated with the correlation}
+}
+\value{
+
 }
 \description{
 Get the top contributing genes per geneset

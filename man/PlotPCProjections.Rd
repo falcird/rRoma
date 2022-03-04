@@ -14,6 +14,9 @@ PlotPCProjections(RomaData, Selected = NULL, PlotPCProj = "none")
 \item{PlotPCProj}{vector, string. The plotting modality of projections. It can containing any combination of the following strings: 'Points', 'Density', or 'Bins'.
 Any other value will result in projections not being plotted}
 }
+\value{
+
+}
 \description{
 Plot PC projections score across selected samples
 }

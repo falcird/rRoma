@@ -4,10 +4,20 @@
 \alias{Plot.Genesets}
 \title{Plot genesets information}
 \usage{
-Plot.Genesets(RomaData, Selected = NULL, GenesetMargin = 4,
-  SampleMargin = 4, ColorGradient = colorRamps::blue2red(50),
-  cluster_cols = FALSE, GroupInfo = NULL, HMTite = "Selected Genesets",
-  AggByGroupsFL = list(), Normalize = FALSE, Transpose = FALSE)
+Plot.Genesets(
+  RomaData,
+  Selected = NULL,
+  GenesetMargin = 4,
+  SampleMargin = 4,
+  ColorGradient = colorRamps::blue2red(50),
+  cluster_cols = FALSE,
+  GroupInfo = NULL,
+  HMTite = "Selected Genesets",
+  AggByGroupsFL = list(),
+  Normalize = FALSE,
+  Transpose = FALSE,
+  ZeroColor = NULL
+)
 }
 \arguments{
 \item{RomaData}{list, the analysis returned by rRoma}
@@ -27,11 +37,16 @@ Plot.Genesets(RomaData, Selected = NULL, GenesetMargin = 4,
 \item{HMTite}{scalar, string. The title of the heatmap}
 
 \item{AggByGroupsFL}{list, string. A list of function names (as strings) that will be used to aggregate the
-geneset weigths and produce additional heatmaps.}
+geneset weights and produce additional heatmaps.}
 
 \item{Normalize}{boolean, shuold weights be normalized to c(-1, 1) for each geneset}
 
 \item{Transpose}{boolean, should the samples by plotted on the rows instead of the columns?}
+
+\item{ZeroColor}{string, the color to use to mark the points closed to 0 (e.g., "#FFFFFF")}
+}
+\value{
+
 }
 \description{
 Plot genesets information

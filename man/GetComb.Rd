@@ -9,6 +9,9 @@ GetComb(GrpLevs)
 \arguments{
 \item{GrpLevs}{}
 }
+\value{
+
+}
 \description{
 Returns all groups
 }

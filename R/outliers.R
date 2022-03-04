@@ -25,43 +25,30 @@
 #' @export
 #'
 #' @examples
+#' 
 DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
-                           CompatibleGenes, ExpressionData, PCAType = PCAType,
-                           PlotData = FALSE, ModuleName = '', PrintInfo = TRUE,
-                           Mode = 1, ClusType, cl = NULL, ShiftedAsOverdispersed) {
-  
-  if(!(PCAType %in% c("DimensionsAreGenes", "DimensionsAreSamples"))){
-    print("Incompatible PCAType, no outlier filtering will be performed")
-    return(CompatibleGenes)
-  }
-  
+                                  CompatibleGenes, ExpressionData,
+                                  PlotData = FALSE, ModuleName = '', PrintInfo = TRUE,
+                                  Mode = 1, ClusType, cl = NULL) {
   
   SelGenes <- CompatibleGenes
   
   GetAllPC1Var <- function(i){
     
-    if(PCAType == "DimensionsAreGenes"){
-      tData <- t(ExpressionData[-i, ])
-    }
     
-    if(PCAType == "DimensionsAreSamples"){
-      tData <- ExpressionData[-i, ]
-    }
+    tData <- ExpressionData[-i, ]
     
-    if (!ShiftedAsOverdispersed){
-    PC1Var <- var(
-      irlba::prcomp_irlba(x = tData, n = 1, work = min(8, min(dim(tData)) - 1),
-                          center = ModulePCACenter,
-                          scale. = FALSE, retx = TRUE)$x
-    )
-    return(PC1Var/sum(apply(scale(tData, center = ModulePCACenter, scale = FALSE), 2, var)))
-    }
+    if(6 <= min(dim(tData))){
+      PC1Var <- var(
+        irlba::prcomp_irlba(x = tData, n = 1, work = min(8, min(dim(tData)) - 1),
+                            center = ModulePCACenter,
+                            scale. = FALSE, retx = TRUE)$x
+      )}
     else{
-      PC1 <- irlba::prcomp_irlba(x = tData, n = 1, work = min(8, min(dim(tData)) - 1),
-                                 center = ModulePCACenter,
-                                 scale. = FALSE, retx = TRUE)
-      return(PC1$sdev**2 /PC1$totalvar)
+      PC1Var <- var(prcomp(x = tData, center = ModulePCACenter, scale. = FALSE, retx = TRUE)$x[, 1])
     }
+    return(PC1Var/sum(apply(scale(tData, center = ModulePCACenter, scale = FALSE), 2, var)))
+    
   }
   
   AllPCA1 <- rep(NA, length(CompatibleGenes))

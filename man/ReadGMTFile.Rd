@@ -15,6 +15,9 @@ ReadGMTFile(FileLocation, SearchString = NULL, Mode = "ANY")
 It can be "ALL" (genesets with all the keywords will be returned) or
 "ANY" (genesets with at at least one keyword will be returned)}
 }
+\value{
+
+}
 \description{
 Load a GMT file from a file
 }

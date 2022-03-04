@@ -4,11 +4,21 @@
 \alias{GetCorrelations}
 \title{Title}
 \usage{
-GetCorrelations(RomaData, Selected = NULL, MatData, Methods = "pearson",
-  ConfLevel = 0.95, Construct.Net = FALSE, Construct.Net.PVThr = 0.01)
+GetCorrelations(
+  RomaData,
+  Selected = NULL,
+  MatData,
+  Methods = "pearson",
+  ConfLevel = 0.95,
+  Construct.Net = FALSE,
+  Construct.Net.PVThr = 0.01
+)
 }
 \arguments{
 \item{ConfLevel}{}
+}
+\value{
+
 }
 \description{
 Title
