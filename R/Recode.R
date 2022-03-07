@@ -352,7 +352,7 @@ rRoma.R <- function(ExpressionMatrix,
       cl <- parallel::makePSOCKcluster(nCores)
       
       parallel::clusterExport(cl=cl, varlist=c("SampleFilter", "GeneOutDetection", "GeneOutThr",
-                                               "ModulePCACenter", "ExpressionMatrix", "DetectOutliersShifted",
+                                               "ModulePCACenter", "ExpressionMatrix", "DetectOutliers",
                                                "PCADims", "OrgExpMatrix", "FullSampleInfo", "FoundSampNames", 
                                                "GroupPCSign"),
                               envir = environment())
@@ -388,12 +388,12 @@ rRoma.R <- function(ExpressionMatrix,
     }
     
     if(UseParallel){
-      SelGenes <- DetectOutliersShifted(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
+      SelGenes <- DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
                                         CompatibleGenes = CompatibleGenes, ExpressionData = ExpressionMatrix[CompatibleGenes, ],
                                         PlotData = PlotData, ModuleName = ModuleList[[i]]$Name, Mode = 3,
                                         ClusType = ClusType, cl = cl)
     } else {
-      SelGenes <- DetectOutliersShifted(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
+      SelGenes <- DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
                                         CompatibleGenes = CompatibleGenes, ExpressionData = ExpressionMatrix[CompatibleGenes, ],
                                         PlotData = PlotData, ModuleName = ModuleList[[i]]$Name, Mode = 1)
     }
@@ -540,7 +540,7 @@ rRoma.R <- function(ExpressionMatrix,
           # library(irlba)
           
           if(SampleFilter){
-            SampleSelGenes <- DetectOutliersShifted(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
+            SampleSelGenes <- DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
                                                     CompatibleGenes = Gl, ExpressionData = ExpressionMatrix[Gl, ], PlotData = FALSE,
                                                     ModuleName = '', PrintInfo = FALSE)
             if(length(SampleSelGenes)<PCADims){
