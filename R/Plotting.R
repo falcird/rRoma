@@ -556,7 +556,7 @@ PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'none'){
   
   for(i in Selected){
     
-    PrjList <- lapply(RomaData$ModuleSummary[[i]]$SampledExp, "[[", "SampleScore")
+    PrjList <- lapply(RomaData$ModuleSummary[[i]]$SampledExp, "[[", "GenesWei")
     
     
     if(any(sapply(PrjList, is.null)) | !all(PlotPCProj != "none")){
