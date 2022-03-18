@@ -321,12 +321,6 @@ rRoma.R <- function(ExpressionMatrix,
     print("All the genesets will be used")
   }
   
-  
-  if(MoreInfo){
-    print("The following genesets will be used:")
-    paste(unlist(lapply(ModuleList, "[[", "Name")), "/", nGenes, "gene(s)")
-  }
-  
   ExpressionMatrix <- scale(ExpressionMatrix, center = TRUE, scale = FALSE)
   
   if(UseParallel){
@@ -430,6 +424,35 @@ rRoma.R <- function(ExpressionMatrix,
   
   SampleCenters <- attr(ExpressionMatrix, "scaled:center")
   attr(ExpressionMatrix, "scaled:center") <- NULL
+  
+  # Filter genesets depending on the number of genes
+  nGenes <- sapply(KeptGenes, length)
+  ToFilter <- (nGenes > MaxGenes | nGenes < MinGenes)
+  ToUse <- !ToFilter
+  
+  if(sum(ToFilter)>0){
+    print("The following geneset(s) will be ignored due to the number of usable genes avec outlier detection being outside the specified range")
+    print(
+      paste(unlist(lapply(ModuleList[ToFilter], "[[", "Name")), "/", nGenes[ToFilter], "gene(s)")
+    )
+    
+    if(sum(ToUse) == 0){
+      print("No geneset remaining for the analisis. The analysis cannot proceed.")
+      return(NULL)
+    }
+    
+    ModuleList <- ModuleList[ToUse]
+    nGenes <- nGenes[ToUse]
+    KeptGenes <- KeptGenes[ToUse]
+  } else {
+    print("All the remainibg genesets will be used")
+  }
+  
+  
+  if(MoreInfo){
+    print("The following genesets will be used:")
+    paste(unlist(lapply(ModuleList, "[[", "Name")), "/", nGenes, "gene(s)")
+  }
   
   for(i in 1:length(ModuleList)){
     

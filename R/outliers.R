@@ -28,7 +28,7 @@
 #' 
 DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
                                   CompatibleGenes, ExpressionData,
-                                  PlotData = FALSE, ModuleName = '', PrintInfo = TRUE,
+                                  PlotData = FALSE, ModuleName = '', PrintInfo = FALSE,
                                   Mode = 1, ClusType, cl = NULL) {
   
   SelGenes <- CompatibleGenes
