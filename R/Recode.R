@@ -761,9 +761,9 @@ rRoma.R <- function(ExpressionMatrix,
         points(x=1, y=ExpVar[1]/ExpVar[2], pch = 20, col="red", cex= 2)
       }
       
-      boxplot(SampleMedianExp, at = 1, ylab = "Median expression",
+      boxplot(SamplePC1Mean, at = 1, ylab = "Median expression PC1",
               main = ModuleList[[i]]$Name, ylim=range(c(SampleMedianExp, median(BaseMatrix))))
-      points(x=1, y=median(BaseMatrix), pch = 20, col="red", cex= 2)
+      points(x=1, y=PC1Mean, pch = 20, col="red", cex= 2)
       
     }
     
@@ -870,13 +870,23 @@ rRoma.R <- function(ExpressionMatrix,
     
     if(PlotData){
       
-      if(PCADims >= 2){
+      if(PCADims >= 2 & !is.null(GroupPCsVect)){
         
         
         DF <- data.frame(GS1 = CorrectSign1*GeneScore1, GS2 = CorrectSign2*GeneScore2,
-                         Group = SelGenes)
+                         Group = GroupPCsVect)
         
         p <- ggplot2::ggplot(DF, ggplot2::aes(x=GS1, y=GS2, color = Group)) + ggplot2::geom_point() +
+          ggplot2::labs(title = ModuleList[[i]]$Name) + ggplot2::guides(color = "none")
+        print(p)
+        
+      }
+      else if (PCADims >= 2){
+        
+        
+        DF <- data.frame(GS1 = CorrectSign1*GeneScore1, GS2 = CorrectSign2*GeneScore2)
+        
+        p <- ggplot2::ggplot(DF, ggplot2::aes(x=GS1, y=GS2)) + ggplot2::geom_point() +
           ggplot2::labs(title = ModuleList[[i]]$Name) + ggplot2::guides(color = "none")
         print(p)
         

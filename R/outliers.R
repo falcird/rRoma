@@ -100,6 +100,7 @@ DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
     if(PlotData){
       # Highliting outliers
       points(y= AllPCA1[GenesOut], x=rep(1, sum(GenesOut)), col='red', pch=20)
+      text(y= AllPCA1[GenesOut], x = rep(1, sum(GenesOut)), labels = CompatibleGenes[GenesOut], pos = 4)
       legend("left", pch = 20, col='red', legend = "Outlier(s)")
     }
     
@@ -179,6 +180,7 @@ DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
     if(PlotData){
       # Highliting outliers
       points(y= AllPCA1[GenesOut], x=rep(1, sum(GenesOut)), col='red', pch=20)
+      text(y= AllPCA1[GenesOut], x = rep(1, sum(GenesOut)), labels = CompatibleGenes[GenesOut], pos = 4)
       legend("left", pch = 20, col='red', legend = "Outlier(s)")
     }
     
@@ -215,6 +217,7 @@ DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
     if(PlotData){
       # Highliting outliers
       points(y= AllPCA1[GenesOut], x=rep(1, sum(GenesOut)), col='red', pch=20)
+      text(y= AllPCA1[GenesOut], x = rep(1, sum(GenesOut)), labels = CompatibleGenes[GenesOut], pos = 4)
       legend("left", pch = 20, col='red', legend = "Outlier(s)")
     }
     
