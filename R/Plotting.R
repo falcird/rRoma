@@ -18,29 +18,19 @@
 #' @export
 #'
 #' @examples
-Plot.Genesets <- function(RomaData, Selected = NULL,
-                          GenesetMargin = 4, SampleMargin = 4,
-                          ColorGradient = colorRamps::blue2red(50),
-                          cluster_cols = FALSE, GroupInfo = NULL,
-                          HMTite = "Selected Genesets", AggByGroupsFL = list(),
-                          Normalize = FALSE, Transpose = FALSE, ZeroColor = NULL){
+
+Plot.Genesets.vs.Sampled <- function(RomaData, Selected = NULL){
   
   if(is.null(Selected)){
     Selected <- 1:nrow(RomaData$SampleMatrix)
   }
   
-  if((length(ColorGradient) %% 2) != 0){
-    stop("the length of ColorGradient MUST be a multiple of 2")
-  }
-  
   if(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix)))<1){
-    print("No Genset selected")
+    print("No Geneset selected")
     return(NULL)
   } else {
-    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset selected"))
+    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "genesets selected"))
   }
-  
-  op <- par(mar=c(GenesetMargin, 5, 4, 2))
   
   B <- boxplot(lapply(RomaData$ModuleSummary[Selected], function(x){
     tSampleExp <- sapply(x$SampledExp, "[[", "ExpVar")
@@ -56,12 +46,38 @@ Plot.Genesets <- function(RomaData, Selected = NULL,
   
   PlotData <- lapply(RomaData$ModuleSummary[Selected], function(x){
     sapply(x$SampledExp, "[[", "MedianExp")
-    })
+  })
   
   B <- boxplot(PlotData, at = 1:length(Selected), las = 2, ylab = "Median expression", main = "Selected genesets",
                names = unlist(lapply(RomaData$ModuleSummary[Selected], "[[", "ModuleName")),
                ylim = range(c(unlist(PlotData), RomaData$ModuleMatrix[Selected,7]), na.rm = TRUE))
   points(x = 1:length(Selected), y = RomaData$ModuleMatrix[Selected,7], pch = 20, col="red", cex = 2)
+
+}
+
+Plot.Genesets.Samples <- function(RomaData, Selected = NULL,
+                          GenesetMargin = 4, SampleMargin = 4,
+                          ColorGradient = colorRamps::blue2red(50),
+                          cluster_cols = FALSE, GroupInfo = NULL,
+                          HMTite = "Selected Genesets", AggByGroupsFL = list(),
+                          Normalize = FALSE, Transpose = FALSE, ZeroColor = NULL){
+  
+  if(is.null(Selected)){
+    Selected <- 1:nrow(RomaData$SampleMatrix)
+  }
+  
+  if((length(ColorGradient) %% 2) != 0){
+    stop("the length of ColorGradient MUST be a multiple of 2")
+  }
+  
+  if(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix)))<1){
+    print("No Geneset selected")
+    return(NULL)
+  } else {
+    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "genesets selected"))
+  }
+  
+  op <- par(mar=c(GenesetMargin, 5, 4, 2))
   
   par(op)
   
