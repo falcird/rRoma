@@ -8,14 +8,15 @@
 #' @param TestPV2 numeric between 0 and 1, the threshold PV for difference test (Tukey)
 #' @param PlotDiag boolean, should diagnostic plot be displayed?
 #' @param PlotXGSDiff boolean, should all significant differences by considered?
+#' @param Plot string, whether difference should be plotted by group or by sample. Possible values are "group", "sample", "both"
 #'
 #' @return
 #' @export
 #'
 #' @examples
-CompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
+GlobalCompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
                                  TestMode = "Aov+Tuk", TestPV1 = 5e-2, TestPV2 = 5e-2,
-                                 PlotDiag = FALSE, PlotXGSDiff = FALSE) {
+                                 PlotDiag = FALSE, PlotXGSDiff = FALSE, Plot = "both") {
   
   if(is.null(Selected)){
     Selected <- 1:nrow(RomaData$SampleMatrix)
@@ -54,66 +55,23 @@ CompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
     SumData <- summary(AOVFitTypeI)
     print(SumData)
     
+    if(Plot %in% c("both", "group")){
+      p <- ggplot2::ggplot(MeltData, ggplot2::aes(y=Value, x=Group, fill=Group)) +
+        ggplot2::geom_boxplot() + ggplot2::guides(fill = "none") +
+        ggsignif::geom_signif(comparisons = GetComb(unique(MeltData$Group)),
+                              map_signif_level=TRUE, test = "wilcox.test", step_increase = .1) +
+        ggplot2::labs(y="Sample score", x="Groups", title = "Groups")
     
-    p <- ggplot2::ggplot(MeltData, ggplot2::aes(y=Value, x=Group, fill=Group)) +
-      ggplot2::geom_boxplot() + ggplot2::guides(fill = "none") +
-      ggsignif::geom_signif(comparisons = GetComb(unique(MeltData$Group)),
-                            map_signif_level=TRUE, test = "wilcox.test", step_increase = .1) +
-      ggplot2::labs(y="Sample score", x="Groups", title = "Groups")
+      print(p)
+    }
     
-    print(p)
-    
-    p <- ggplot2::ggplot(MeltData, ggplot2::aes(y=Value, x=Sample, fill=Group)) +
-      ggplot2::geom_boxplot() + ggplot2::coord_flip() +
-      ggplot2::labs(y="Sample score", x="Samples", title = "Groups") +
-      ggplot2::theme(axis.text.y = ggplot2::element_blank())
+    if(Plot %in% c("both", "sample")){
+      p <- ggplot2::ggplot(MeltData, ggplot2::aes(y=Value, x=Sample, fill=Group)) +
+        ggplot2::geom_boxplot() + ggplot2::coord_flip() +
+        ggplot2::labs(y="Sample score", x="Samples", title = "Groups") +
+        ggplot2::theme(axis.text.y = ggplot2::element_blank())
         
-    print(p)
-    
-    
-    if(SumData[[1]][1,5] < TestPV1){
-      print("A significant difference is observed across groups")
-      
-      print("Calculating Tukey Honest Significant Differences")
-      
-      TukTest <- TukeyHSD(AOVFitTypeI, conf.level = 1-TestPV2)
-      
-      if(PlotDiag){
-        plot(TukTest)
-      }
-      
-      Diffs <- TukTest$Group
-      Diffs <- data.frame(Diffs[Diffs[,4] < TestPV2,])
-      Diffs <- cbind(rownames(Diffs), Diffs)
-      colnames(Diffs)[1] <- "GDiff"
-      
-      print(paste(nrow(Diffs), "significant differences found"))
-      
-      if(nrow(Diffs)>1){
-        
-        Sep <- seq(from = 1, to = nrow(Diffs), by = 10)
-        if(max(Sep) < nrow(Diffs)) Sep <- c(Sep, nrow(Diffs))
-        
-        for(i in 2:length(Sep)){
-          p <- ggplot2::ggplot(Diffs[Sep[i-1]:Sep[i],],
-                               ggplot2::aes(x = GDiff, y = diff, ymin = lwr, ymax = upr)) +
-            ggplot2::geom_point() + ggplot2::geom_errorbar(width=0.25) + ggplot2::coord_flip() +
-            ggplot2::facet_wrap( ~ GDiff, scales = "free_y", ncol = 1) +
-            ggplot2::labs(y="Mean difference", x="Categories", title = paste("Groups - Part", i-1)) +
-            ggplot2::theme(
-              # axis.text.x = element_blank(),
-              axis.text.y = ggplot2::element_blank(),
-              axis.ticks = ggplot2::element_blank(),
-              strip.text.x = ggplot2::element_text(size=6, face = "bold"))
-          
-          print(p)
-          
-        }
-        
-      }
-      
-      
-      
+      print(p)
     }
     
     print("Performing Type III AOV (R default) for each geneset")
@@ -260,6 +218,83 @@ CompareAcrossSamples <- function(RomaData, Groups, Selected = NULL,
     
   }
 
+}
+
+
+#' Compare ROMA sample scores across samples from different populations, for each selected geneset
+#'
+#' @param RomaData list, the analysis returned by rRoma
+#' @param Groups string vector, a vector of group identifiers. Must contain the names of the samples.
+#' @param Selected Genesets used to perform the analysis 
+#' @param TestMode string, the type of statistical methodology to assess sample difference. Currently only ANOVA + Tukey is implemented ("Aov+Tuk")
+#' @param TestPV1 numeric between 0 and 1, the threshold PV for the initial test (ANOVA)
+#' @param TestPV2 numeric between 0 and 1, the threshold PV for difference test (Tukey)
+#' @param PlotDiag boolean, should diagnostic plot be displayed?
+#' @param PlotXGSDiff boolean, should all significant differences by considered?
+#'
+#' @return
+#' @export
+#'
+#' @examples
+GlobalCompareAcrossSamplesGenesets <- function(RomaData, Groups, Selected = NULL,
+                                       TestMode = "Aov+Tuk", TestPV1 = 5e-2, TestPV2 = 5e-2,
+                                       PlotDiag = FALSE, PlotXGSDiff = FALSE) {
+  
+  if(is.null(Selected)){
+    Selected <- 1:nrow(RomaData$SampleMatrix)
+  }
+  
+  if(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix)))<1){
+    print("No Geneset selected")
+    return(NULL)
+  } else {
+    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "geneset(s) selected"))
+  }
+  
+  tMat <- RomaData$SampleMatrix[Selected,]
+  #  names(Groups) <- colnames(tMat)  Groups doit déjà contenir les noms des samples
+  
+  MeltData <- reshape::melt(tMat)
+  MeltData <- cbind(MeltData, Groups[as.character(MeltData$X2)])
+  
+  
+  # MeltData <- data.frame(MeltData)
+  
+  colnames(MeltData) <- c("GeneSet", "Sample", "Value", "Group") 
+  
+  MeltData <- MeltData[!is.na(MeltData$Group), ]
+  
+  if(TestMode == "Aov+Tuk"){
+    
+    print("Performing Type III AOV (R default) for each geneset")
+    
+    AOVFitTypeI <- aov(formula = Value ~ Group/GeneSet, data = MeltData)
+    
+    if(PlotDiag){
+      plot(AOVFitTypeI)
+    }
+    
+    SumData <- summary(AOVFitTypeI)
+    print(SumData)
+    
+    Sep <- seq(from = 1, to = length(unique(MeltData$GeneSet)), by = 4)
+    if(max(Sep) < length(unique(MeltData$GeneSet))+1) Sep <- c(Sep, length(unique(MeltData$GeneSet))+1)
+    
+    for(i in 2:length(Sep)){
+      
+      p <- ggplot2::ggplot(MeltData[as.integer(MeltData$GeneSet) %in% Sep[i-1]:(Sep[i]-1),],
+                           ggplot2::aes(y=Value, x=Group, fill=Group)) + ggplot2::geom_boxplot() +
+        ggsignif::geom_signif(comparisons = GetComb(unique(MeltData$Group)),
+                              map_signif_level=TRUE, test = "wilcox.test", step_increase = .1) +
+        ggplot2::labs(y="Sample score", x="Groups", title = paste("Geneset VS Groups - Part", i-1)) +
+        ggplot2::facet_wrap( ~ GeneSet, scales = "free_y", ncol = 2) + ggplot2::theme(strip.text.x = ggplot2::element_text(size=6, face = "bold")) +
+        ggplot2::guides(fill = "none")
+      
+      print(p)
+    }
+    
+  }
+  
 }
 
 
