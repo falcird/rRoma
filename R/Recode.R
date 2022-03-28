@@ -58,6 +58,7 @@
 #' @param FillNAMethod name list, additional parameters to pass to the mice function
 #' @param Grouping name vector, the groups associated with the sample.
 #' @param FullSampleInfo boolean, should full PC information be computed and saved for all randomized genesets?
+#' @param SampleSign boolean, should we try to reorient sampled genesets ? Usefull only if FullSampleInfo is TRUE
 #' @param GroupPCSign boolean, should grouping information be used to orient PCs?
 #' @param CorMethod character string indicating which correlation coefficient is to be used
 #' to orient the principal components. Can be "pearson", "kendall", or "spearman".
@@ -101,6 +102,7 @@ rRoma.R <- function(ExpressionMatrix,
                            FillNAMethod = list(),
                            Grouping = NULL,
                            FullSampleInfo = FALSE,
+                           SampleSign = FALSE,
                            GroupPCSign = FALSE,
                            CorMethod = "pearson",
                            SuppressWarning = FALSE,
@@ -627,7 +629,7 @@ rRoma.R <- function(ExpressionMatrix,
           }
           
           
-          if(FullSampleInfo){
+          if(FullSampleInfo & SampleSign){
             
             if(GroupPCSign){
               GroupPCsVect <- Grouping
@@ -672,7 +674,14 @@ rRoma.R <- function(ExpressionMatrix,
                         "PC1Mean" = PC1Mean))
             
             
-          } else {
+          } else if (FullSampleInfo){
+            return(list("ExpVar" = VarVect/sum(apply(scale(BaseMatrix, center = TRUE, scale = FALSE), 2, var)),
+                        "MedianExp"= SampMedian,
+                        "GenesWei"= cbind(PCSamp$x[,1], PCSamp$x[,2]),
+                        "SampleScore"= cbind(PCSamp$rotation[,1], PCSamp$rotation[,2]),
+                        "PC1Mean" = PC1Mean))
+          } else{
+          
             
             return(list("ExpVar"=VarVect/sum(apply(scale(BaseMatrix, center = TRUE, scale = FALSE), 2, var)),
                         "MedianExp"=SampMedian, "GenesWei" = NULL, "SampleScore" = NULL,
