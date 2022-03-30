@@ -5,11 +5,11 @@
 #' @param Selected vector, integer. The indices of the genesets to plot 
 #' @param nGenes either a value between 0 and 1 or a positive integer larger than 1. If the parameter
 #' is an integer larger than 1, it will be interpreted as the number of genes to return per geneset.
-#' If the parameter is a value between 1 and 0 it will be interpreted as the ratio or genes to return per
+#' If the parameter is a value between 1 and 0 it will be interpreted as the ratio of genes to return per
 #' geneset (e.g., .1 indicates 10\% of the genes of the geneset)).
 #' @param Mode string, the mode used to determine the top contributing genes. It can be "Wei"
 #' (gene weights will be used) or "Cor" (pearson correlation between gene expression and module score will be used)
-#' @param Plot boolean, shoul the summary heatmap be plotted?
+#' @param Plot boolean, should the summary heatmap be plotted?
 #' @param ExpressionMatrix numerical matrix, the expression matrix in the same format used by the rRoma.R function
 #' @param OrderType string scalar. The mode of selection for the top contributing genes.
 #' The current implementation allow "Abs" (genes with the largest weight in absolute value),
@@ -20,7 +20,7 @@
 #' @param Transpose boolean, should the genes by plotted on the rows instead of the columns?
 #' @param CorMethod string, the method to use to compute the correlation ("pearson", "kendall",
 #' or "spearman"). Methods other than "pearson" will produce potenital problems in the derivation
-#' of statistics accociated with the correlation
+#' of statistics associated with the correlation
 #'
 #' @return
 #' @export
@@ -37,7 +37,7 @@ GetTopContrib <- function(RomaData, Selected = NULL, nGenes = .1,
   }
   
   if(is.null(ExpressionMatrix) & Mode == "Cor"){
-    print("Impossible to compute cerrelations if expression matrix is not provided. Using weights.")
+    print("Impossible to compute correlations if expression matrix is not provided. Using weights.")
     Mode <- "Wei"
   }
   

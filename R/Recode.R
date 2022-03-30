@@ -1117,6 +1117,9 @@ rRoma.R <- function(ExpressionMatrix,
   modules_pc1_mean <- sapply(modules_pc1_mean, abs)
   sampled_sets_pc1_mean <- sapply(sampled_sets_pc1_mean, abs)
   
+  sampled_sets_L1 <-sampled_sets_L1[!is.na(sampled_sets_L1)]
+  sampled_sets_L1_L2 <-sampled_sets_L1_L2[!is.na(sampled_sets_L1_L2)]
+  
   ModuleMatrix <- cbind(ModuleMatrix, rep(NA, nrow(ModuleMatrix)), rep(NA, nrow(ModuleMatrix)), rep(NA, nrow(ModuleMatrix)))
   
   for(i in c(1:length(ModuleSummary))){
@@ -1140,8 +1143,8 @@ rRoma.R <- function(ExpressionMatrix,
   }
   
   # Makes sure ModuleMatrix is treated as a matrix
-  if(length(ModuleMatrix) == 8){
-    dim(ModuleMatrix) <- c(1, 8)
+  if(length(ModuleMatrix) == 11){
+    dim(ModuleMatrix) <- c(1, 11)
   }
   
   colnames(ModuleMatrix) <- c("L1", "Median L1", "ppv L1", "L1/L2", "Median L1/L2", "ppv L1/L2", "Median Exp", "ppv Median Exp", "q L1", "q L1/L2", "q Median Exp")

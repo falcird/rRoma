@@ -1,4 +1,57 @@
-#' Plot genesets information
+#' View genesets L1 and median PC1 compared to null distribution. 
+#'
+#' @param RomaData list, the analysis returned by rRoma
+#' @param Selected vector, integer. The position of the genesets to plot
+#' @param Plot string, which parameter should be visualized ? Can be "L1", "PC1Median" or "both"
+#'
+#' @return
+#' @export
+#'
+#' @examples
+
+Plot.Genesets.vs.Sampled <- function(RomaData, Selected = NULL, Plot = "both"){
+  
+  if(is.null(Selected)){
+    Selected <- 1:nrow(RomaData$SampleMatrix)
+  }
+  
+  if(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix)))<1){
+    print("No Geneset selected")
+    return(NULL)
+  } else {
+    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "genesets selected"))
+  }
+  
+  if(Plot %in% c("both", "L1")){
+    B <- boxplot(lapply(RomaData$ModuleSummary[Selected], function(x){
+      tSampleExp <- sapply(x$SampledExp, "[[", "ExpVar")
+      if(!is.null(ncol(tSampleExp))){
+        tSampleExp[1,]
+      } else {
+        tSampleExp
+      }
+    }), at = 1:length(Selected), las = 2, ylab = "Explained variance", main = "Selected genesets",
+    names = unlist(lapply(RomaData$ModuleSummary[Selected], "[[", "ModuleName")),
+    ylim = c(0,1))
+    points(x = 1:length(Selected), y = RomaData$ModuleMatrix[Selected,1], pch = 20, col="red", cex = 2)
+  }
+  
+  if(Plot %in% c("both", "PC1Median")){
+    PlotData <- lapply(RomaData$ModuleSummary[Selected], function(x){
+      sapply(x$SampledExp, "[[", "PC1Mean")
+    })
+  
+    B <- boxplot(PlotData, at = 1:length(Selected), las = 2, ylab = "Median expression PC1", main = "Selected genesets",
+                names = unlist(lapply(RomaData$ModuleSummary[Selected], "[[", "ModuleName")),
+                ylim = range(c(unlist(PlotData), RomaData$ModuleMatrix[Selected,7]), na.rm = TRUE))
+    points(x = 1:length(Selected), y = RomaData$ModuleMatrix[Selected,7], pch = 20, col="red", cex = 2)
+  }
+}
+
+
+
+#' Plot genesets information. Creates a heatmap of sample scores for all selected gene sets. If groups and functions
+#' are specified, creates other heatmaps with data aggregated by groups using the functions provided.
 #'
 #' @param RomaData list, the analysis returned by rRoma
 #' @param Selected vector, integer. The position of the genesets to plot
@@ -14,46 +67,10 @@
 #' @param Transpose boolean, should the samples by plotted on the rows instead of the columns?
 #' @param ZeroColor string, the color to use to mark the points closed to 0 (e.g., "#FFFFFF")
 #'
-#' @return
+#' @return A list of matrices containing the aggregated data used to produce the heatmaps.
 #' @export
 #'
 #' @examples
-
-Plot.Genesets.vs.Sampled <- function(RomaData, Selected = NULL){
-  
-  if(is.null(Selected)){
-    Selected <- 1:nrow(RomaData$SampleMatrix)
-  }
-  
-  if(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix)))<1){
-    print("No Geneset selected")
-    return(NULL)
-  } else {
-    print(paste(length(intersect(Selected, 1:nrow(RomaData$SampleMatrix))), "genesets selected"))
-  }
-  
-  B <- boxplot(lapply(RomaData$ModuleSummary[Selected], function(x){
-    tSampleExp <- sapply(x$SampledExp, "[[", "ExpVar")
-    if(!is.null(ncol(tSampleExp))){
-      tSampleExp[1,]
-    } else {
-      tSampleExp
-    }
-  }), at = 1:length(Selected), las = 2, ylab = "Explained variance", main = "Selected genesets",
-  names = unlist(lapply(RomaData$ModuleSummary[Selected], "[[", "ModuleName")),
-  ylim = c(0,1))
-  points(x = 1:length(Selected), y = RomaData$ModuleMatrix[Selected,1], pch = 20, col="red", cex = 2)
-  
-  PlotData <- lapply(RomaData$ModuleSummary[Selected], function(x){
-    sapply(x$SampledExp, "[[", "MedianExp")
-  })
-  
-  B <- boxplot(PlotData, at = 1:length(Selected), las = 2, ylab = "Median expression", main = "Selected genesets",
-               names = unlist(lapply(RomaData$ModuleSummary[Selected], "[[", "ModuleName")),
-               ylim = range(c(unlist(PlotData), RomaData$ModuleMatrix[Selected,7]), na.rm = TRUE))
-  points(x = 1:length(Selected), y = RomaData$ModuleMatrix[Selected,7], pch = 20, col="red", cex = 2)
-
-}
 
 Plot.Genesets.Samples <- function(RomaData, Selected = NULL,
                           GenesetMargin = 4, SampleMargin = 4,
