@@ -68,7 +68,7 @@
 #' @param ShiftedAsOverdispersed boolean, do you want ROMA to consider shifted gene sets as overdispersed ? Available only if FixedCenter is TRUE
 #' @param OutlierRarelyFoundThr numeric scalar, the minimum number of pathways in which a gene has to be found to potentially be considered as an outlier
 #' @param OutlierFisherThr numeric scalar, the fisher p value to use as threshold to detect outliers.
-#' @param OutlierStrict boolean, should outliers be removed from all pathways or only those in which they are considered to be outliers ?
+#' @param OutliersPerc numeric, how much of the data should be removed based on outliers ? (eg 0.05 for a maximum of 5% of outliers)
 #' @return
 #' @export
 #'
@@ -110,7 +110,7 @@ rRoma.R <- function(ExpressionMatrix,
                            ShiftedAsOverdispersed = FALSE,
                            OutlierRarelyFoundThr = 5,
                            OutlierFisherThr = 0.05,
-                           OutlierStrict = FALSE) {
+                           OutliersPerc = 0.05) {
   
   if(PCADims < 1){
     stop("PCADims should be >= 1")
@@ -289,6 +289,7 @@ rRoma.R <- function(ExpressionMatrix,
   OutLiersList <- list()
   UsedModules <- NULL
   
+  OutliersRank <- list()
   nGenes <- rep(NA, length(ModuleList))
   
   # Filter genes for compatibility with the expression matrix
@@ -369,9 +370,11 @@ rRoma.R <- function(ExpressionMatrix,
   # Detecting outliers for each Module
   Genes_pathways_counts <- list()
   Genes_outliers_counts <- list()
+  ModuleLengths <- c()
   
   for(i in 1:length(ModuleList)){
     CompatibleGenes <- ModuleList[[i]]$Genes
+    ModuleLengths <- c(ModuleLengths, length(CompatibleGenes))
     for(j in CompatibleGenes){
       if(!j %in% names(Genes_pathways_counts)){
         Genes_pathways_counts[[j]] <- 1
@@ -394,7 +397,8 @@ rRoma.R <- function(ExpressionMatrix,
                                         PlotData = PlotData, ModuleName = ModuleList[[i]]$Name, Mode = 1)
     }
     
-    OutLiersList[[i]] <- setdiff(CompatibleGenes, SelGenes)
+    OutLiersList[[i]] <- SelGenes[["FiltGenes"]]
+    OutliersRank[[i]] <- SelGenes[["FiltRank"]]
     Genes_outliers_counts[OutLiersList[[i]]] <- lapply(Genes_outliers_counts[OutLiersList[[i]]], function(x){x+1})
     
   }
@@ -413,15 +417,14 @@ rRoma.R <- function(ExpressionMatrix,
     }
   }
   
-  OutLiersList <- lapply(OutLiersList, function(x){intersect(x, genes_to_remove)})
-  if(OutlierStrict){ 
-    KeptGenes <- lapply(lapply(ModuleList, "[[", "Genes"), function(x){setdiff(x, genes_to_remove)})
+  for(i in c(1:length(OutLiersList))){
+    ranks <- rank(OutliersRank[[i]][OutLiersList[[i]] %in% genes_to_remove]) <= max(c(round(ModuleLengths[i]*OutliersPerc), 1))
+    OutLiersList[[i]] <- OutLiersList[[i]][OutLiersList[[i]] %in% genes_to_remove][ranks]
   }
-  else{
-    KeptGenes <- list()
-    for(i in 1:length(ModuleList)){
-      KeptGenes[[i]] <- setdiff(ModuleList[[i]]$Genes, OutLiersList[[i]])
-    }
+  
+  KeptGenes <- list()
+  for(i in 1:length(ModuleList)){
+    KeptGenes[[i]] <- setdiff(ModuleList[[i]]$Genes, OutLiersList[[i]])
   }
   
   SampleCenters <- attr(ExpressionMatrix, "scaled:center")
@@ -576,9 +579,9 @@ rRoma.R <- function(ExpressionMatrix,
           # library(irlba)
           
           if(SampleFilter){
-            SampleSelGenes <- DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
+            SampleSelGenes <- setdiff(Gl, DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
                                                     CompatibleGenes = Gl, ExpressionData = ExpressionMatrix[Gl, ], PlotData = FALSE,
-                                                    ModuleName = '', PrintInfo = FALSE)
+                                                    ModuleName = '', PrintInfo = FALSE)[["FiltGenes"]])
             if(length(SampleSelGenes)<PCADims){
               warning(paste("Size of filtered sample geneset too small (",  length(SampleSelGenes), "). This may cause inconsitencies. Increase MinGenes or GeneOutThr to prevent the problem from happening"))
             }
@@ -1139,21 +1142,21 @@ rRoma.R <- function(ExpressionMatrix,
   j<- 1
   for(i in order(ModuleMatrix[, 3])){
     equal <- which(ModuleMatrix[, 3] == ModuleMatrix[, 3][i])
-    ModuleMatrix[, 9][i] <- min(ModuleMatrix$q[unique(c(equal, order(ModuleMatrix[, 3])[j:nrow(ModuleMatrix)]))])
+    ModuleMatrix[, 9][i] <- min(ModuleMatrix[unique(c(equal, order(ModuleMatrix[, 3])[j:nrow(ModuleMatrix)])), 9])
     j <- j+1
   }
   
   j<- 1
   for(i in order(ModuleMatrix[, 6])){
     equal <- which(ModuleMatrix[, 6] == ModuleMatrix[, 6][i])
-    ModuleMatrix[, 10][i] <- min(ModuleMatrix$q[unique(c(equal, order(ModuleMatrix[, 6])[j:nrow(ModuleMatrix)]))])
+    ModuleMatrix[, 10][i] <- min(ModuleMatrix[unique(c(equal, order(ModuleMatrix[, 6])[j:nrow(ModuleMatrix)])), 10])
     j <- j+1
   }
   
   j<- 1
   for(i in order(ModuleMatrix[, 8])){
     equal <- which(ModuleMatrix[, 8] == ModuleMatrix[, 8][i])
-    ModuleMatrix[, 11][i] <- min(ModuleMatrix$q[unique(c(equal, order(ModuleMatrix[, 8])[j:nrow(ModuleMatrix)]))])
+    ModuleMatrix[, 11][i] <- min(ModuleMatrix[unique(c(equal, order(ModuleMatrix[, 8])[j:nrow(ModuleMatrix)])), 11])
     j <- j+1
   }
   
