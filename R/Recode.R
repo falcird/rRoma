@@ -1135,6 +1135,28 @@ rRoma.R <- function(ExpressionMatrix,
   ModuleMatrix[is.na(ModuleMatrix[, 10]), 10] <- min(ModuleMatrix[!is.na(ModuleMatrix[, 10]), 10])
   ModuleMatrix[is.na(ModuleMatrix[, 11]), 11] <- min(ModuleMatrix[!is.na(ModuleMatrix[, 11]), 11])
   
+  #Make sure q values are ordered in the same way as p values
+  j<- 1
+  for(i in order(ModuleMatrix[, 3])){
+    equal <- which(ModuleMatrix[, 3] == ModuleMatrix[, 3][i])
+    ModuleMatrix[, 9][i] <- min(ModuleMatrix$q[unique(c(equal, order(ModuleMatrix[, 3])[j:nrow(ModuleMatrix)]))])
+    j <- j+1
+  }
+  
+  j<- 1
+  for(i in order(ModuleMatrix[, 6])){
+    equal <- which(ModuleMatrix[, 6] == ModuleMatrix[, 6][i])
+    ModuleMatrix[, 10][i] <- min(ModuleMatrix$q[unique(c(equal, order(ModuleMatrix[, 6])[j:nrow(ModuleMatrix)]))])
+    j <- j+1
+  }
+  
+  j<- 1
+  for(i in order(ModuleMatrix[, 8])){
+    equal <- which(ModuleMatrix[, 8] == ModuleMatrix[, 8][i])
+    ModuleMatrix[, 11][i] <- min(ModuleMatrix$q[unique(c(equal, order(ModuleMatrix[, 8])[j:nrow(ModuleMatrix)]))])
+    j <- j+1
+  }
+  
   if(UseParallel){
     
     # Stop cluster
