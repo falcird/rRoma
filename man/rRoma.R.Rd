@@ -18,7 +18,6 @@ rRoma.R(
   OutGeneNumber = 5,
   Ncomp = 10,
   OutGeneSpace = NULL,
-  FixedCenter = TRUE,
   GeneOutDetection = "L1OutExpOut",
   GeneOutThr = 5,
   GeneSelMode = "All",
@@ -35,15 +34,15 @@ rRoma.R(
   FillNAMethod = list(),
   Grouping = NULL,
   FullSampleInfo = FALSE,
+  SampleSign = FALSE,
   GroupPCSign = FALSE,
   CorMethod = "pearson",
-  PCAType = "DimensionsAreSamples",
   SuppressWarning = FALSE,
   ShowParallelPB = FALSE,
   ShiftedAsOverdispersed = FALSE,
   OutlierRarelyFoundThr = 5,
-  OutlierPercThr = 0.75,
-  OutlierStrict = FALSE
+  OutlierFisherThr = 0.05,
+  OutliersPerc = 0.05
 )
 }
 \arguments{
@@ -74,8 +73,6 @@ For example, 5 means that samples are re recalculated only if the number of gene
 
 \item{OutGeneSpace}{scalar, number of median-absolute-deviations away from median required for in a sample to be called
 an outlier in the gene expression space. If set to NULL, the gene space filtering will not be performed.}
-
-\item{FixedCenter}{logical, should PCA with fixed center be used ?}
 
 \item{GeneOutDetection}{character scalar, the algorithm used to filter genes in a module. Possible values are
 \itemize{
@@ -136,12 +133,12 @@ which should be faster.}
 
 \item{FullSampleInfo}{boolean, should full PC information be computed and saved for all randomized genesets?}
 
+\item{SampleSign}{boolean, should we try to reorient sampled genesets ? Usefull only if FullSampleInfo is TRUE}
+
 \item{GroupPCSign}{boolean, should grouping information be used to orient PCs?}
 
 \item{CorMethod}{character string indicating which correlation coefficient is to be used
 to orient the principal components. Can be "pearson", "kendall", or "spearman".}
-
-\item{PCAType}{character string, the type of PCA to perform. It can be "DimensionsAreGenes" or "DimensionsAreSamples"}
 
 \item{SuppressWarning}{boolean, should warnings be displayed? This option can be ignored in non-interactive sessions.}
 
@@ -152,9 +149,9 @@ progress bar is displayed via the pbapply package. This may slow down the comput
 
 \item{OutlierRarelyFoundThr}{numeric scalar, the minimum number of pathways in which a gene has to be found to potentially be considered as an outlier}
 
-\item{OutlierPercThr}{numeric scalar, the minimum ratio of pathways in which a gene has to be considered outlier to be considered as a global outlier}
+\item{OutlierFisherThr}{numeric scalar, the fisher p value to use as threshold to detect outliers.}
 
-\item{OutlierStrict}{boolean, should outliers be removed from all pathways or only those in which they are considered to be outliers ?}
+\item{OutliersPerc}{numeric, how much of the data should be removed based on outliers ? (eg 0.05 for a maximum of 5% of outliers)}
 }
 \value{
 

@@ -26,13 +26,13 @@ GetTopContrib(
 
 \item{nGenes}{either a value between 0 and 1 or a positive integer larger than 1. If the parameter
 is an integer larger than 1, it will be interpreted as the number of genes to return per geneset.
-If the parameter is a value between 1 and 0 it will be interpreted as the ratio or genes to return per
+If the parameter is a value between 1 and 0 it will be interpreted as the ratio of genes to return per
 geneset (e.g., .1 indicates 10\% of the genes of the geneset)).}
 
 \item{Mode}{string, the mode used to determine the top contributing genes. It can be "Wei"
 (gene weights will be used) or "Cor" (pearson correlation between gene expression and module score will be used)}
 
-\item{Plot}{boolean, shoul the summary heatmap be plotted?}
+\item{Plot}{boolean, should the summary heatmap be plotted?}
 
 \item{ExpressionMatrix}{numerical matrix, the expression matrix in the same format used by the rRoma.R function}
 
@@ -50,7 +50,7 @@ The current implementation allow "Abs" (genes with the largest weight in absolut
 
 \item{CorMethod}{string, the method to use to compute the correlation ("pearson", "kendall",
 or "spearman"). Methods other than "pearson" will produce potenital problems in the derivation
-of statistics accociated with the correlation}
+of statistics associated with the correlation}
 }
 \value{
 

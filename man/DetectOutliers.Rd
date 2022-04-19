@@ -10,14 +10,12 @@ DetectOutliers(
   ModulePCACenter,
   CompatibleGenes,
   ExpressionData,
-  PCAType = PCAType,
   PlotData = FALSE,
   ModuleName = "",
-  PrintInfo = TRUE,
+  PrintInfo = FALSE,
   Mode = 1,
   ClusType,
-  cl = NULL,
-  ShiftedAsOverdispersed
+  cl = NULL
 )
 }
 \arguments{
@@ -39,8 +37,6 @@ minimal percentage variation (L1OutVarPerc) or the number of median-absolute-dev
 
 \item{ExpressionData}{}
 
-\item{PCAType}{character string, the type of PCA to perform. It can be "DimensionsAreGenes" or "DimensionsAreSamples"}
-
 \item{PlotData}{}
 
 \item{PrintInfo}{}
@@ -49,6 +45,8 @@ minimal percentage variation (L1OutVarPerc) or the number of median-absolute-dev
 
 \item{cl}{}
 
+\item{PCAType}{character string, the type of PCA to perform. It can be "DimensionsAreGenes" or "DimensionsAreSamples"}
+
 \item{ShiftedAsOverdispersed}{boolean, see description in Recode.R}
 }
 \value{
@@ -56,4 +54,7 @@ minimal percentage variation (L1OutVarPerc) or the number of median-absolute-dev
 }
 \description{
 Detect outliers
+}
+\examples{
+
 }

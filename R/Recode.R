@@ -461,10 +461,6 @@ rRoma.R <- function(ExpressionMatrix,
   
   sampled_sets_pc1_mean <- c()
   modules_pc1_mean <- c()
-  sampled_sets_L1 <- c()
-  modules_L1 <- c()
-  sampled_sets_L1_L2 <- c()
-  modules_L1_L2 <- c()
   
   for(i in 1:length(ModuleList)){
     
@@ -547,8 +543,6 @@ rRoma.R <- function(ExpressionMatrix,
     PC1Mean <- median(PCBase$x[, 1])
     
     modules_pc1_mean <- c(modules_pc1_mean, PC1Mean)
-    modules_L1 <- c(modules_L1, ExpVar[1])
-    modules_L1_L2 <- c(modules_L1_L2, ExpVar[1]/ExpVar[2])
     
     MedianExp <- median(OrgExpMatrix[SelGenes, ])
     
@@ -744,8 +738,6 @@ rRoma.R <- function(ExpressionMatrix,
         SamplePC1Mean <- sapply(SampledExp, "[[", "PC1Mean")
         
         sampled_sets_pc1_mean <- c(sampled_sets_pc1_mean, SamplePC1Mean)
-        sampled_sets_L1 <- c(sampled_sets_L1, SampleExpVar[1,])
-        sampled_sets_L1_L2 <- c(sampled_sets_L1_L2, SampleExpVar[1,]/SampleExpVar[2,])
         
         if(PCADims >= 2){
           SampleExpVar <- rbind(SampleExpVar[1,], SampleExpVar[1,]/SampleExpVar[2,], SampleExpVar[2,])
@@ -1120,38 +1112,20 @@ rRoma.R <- function(ExpressionMatrix,
   modules_pc1_mean <- sapply(modules_pc1_mean, abs)
   sampled_sets_pc1_mean <- sapply(sampled_sets_pc1_mean, abs)
   
-  sampled_sets_L1 <-sampled_sets_L1[!is.na(sampled_sets_L1)]
-  sampled_sets_L1_L2 <-sampled_sets_L1_L2[!is.na(sampled_sets_L1_L2)]
-  
   ModuleMatrix <- cbind(ModuleMatrix, rep(NA, nrow(ModuleMatrix)), rep(NA, nrow(ModuleMatrix)), rep(NA, nrow(ModuleMatrix)))
   
+  #Ici ajouter le calcul de q value BH
+  ModuleMatrix[, 9] <- p.adjust(ModuleMatrix[, 3], "BH")
+  ModuleMatrix[, 10] <- p.adjust(ModuleMatrix[, 6], "BH")
+  
   for(i in c(1:length(ModuleSummary))){
-    L1 <- ModuleMatrix[i, 1]
-    L1_2 <- ModuleMatrix[i, 4]
     pc1_mean <- abs(ModuleMatrix[i, 7])
-    ModuleMatrix[i, 9] <- min(c(1, (sum(sampled_sets_L1 > L1) / length(sampled_sets_L1)) / (sum(modules_L1 > L1) / (length(modules_L1) -1))))
-    ModuleMatrix[i, 10] <- min(c(1, (sum(sampled_sets_L1_L2 > L1_2) / length(sampled_sets_L1_L2)) / (sum(modules_L1_L2 > L1_2) / (length(modules_L1_L2) -1))))
     ModuleMatrix[i, 11] <- min(c(1, (sum(sampled_sets_pc1_mean > pc1_mean) / length(sampled_sets_pc1_mean)) / (sum(modules_pc1_mean > pc1_mean) / (length(modules_pc1_mean) -1))))
   }
   
-  ModuleMatrix[is.na(ModuleMatrix[, 9]), 9] <- min(ModuleMatrix[!is.na(ModuleMatrix[, 9]), 9])
-  ModuleMatrix[is.na(ModuleMatrix[, 10]), 10] <- min(ModuleMatrix[!is.na(ModuleMatrix[, 10]), 10])
   ModuleMatrix[is.na(ModuleMatrix[, 11]), 11] <- min(ModuleMatrix[!is.na(ModuleMatrix[, 11]), 11])
   
   #Make sure q values are ordered in the same way as p values
-  j<- 1
-  for(i in order(ModuleMatrix[, 3])){
-    equal <- which(ModuleMatrix[, 3] == ModuleMatrix[, 3][i])
-    ModuleMatrix[, 9][i] <- min(ModuleMatrix[unique(c(equal, order(ModuleMatrix[, 3])[j:nrow(ModuleMatrix)])), 9])
-    j <- j+1
-  }
-  
-  j<- 1
-  for(i in order(ModuleMatrix[, 6])){
-    equal <- which(ModuleMatrix[, 6] == ModuleMatrix[, 6][i])
-    ModuleMatrix[, 10][i] <- min(ModuleMatrix[unique(c(equal, order(ModuleMatrix[, 6])[j:nrow(ModuleMatrix)])), 10])
-    j <- j+1
-  }
   
   j<- 1
   for(i in order(ModuleMatrix[, 8])){
