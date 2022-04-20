@@ -106,7 +106,7 @@ DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
     
     # Updating gene list
     FiltGenes <- CompatibleGenes[GenesOut]
-    FiltRank <- length(AllPCA1[GenesOut]) +1 - rank(AllPCA1[GenesOut])
+    FiltRank <- length(AllPCA1[GenesOut]) +1 - rank(abs(scale(AllPCA1[GenesOut])))
     
     
   }
@@ -152,7 +152,7 @@ DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
     
     # Updating gene list
     FiltGenes <- CompatibleGenes[GenesOut]
-    FiltRank <- length(AllPCA1[GenesOut]) +1 - rank(AllPCA1[GenesOut])
+    FiltRank <- length(AllPCA1[GenesOut]) +1 - rank(abs(scale(AllPCA1[GenesOut])))
     
   }
   
@@ -189,7 +189,7 @@ DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
     
     # Updating gene list
     FiltGenes <- CompatibleGenes[GenesOut]
-    FiltRank <- length(AllPCA1[GenesOut]) +1 - rank(AllPCA1[GenesOut])
+    FiltRank <- length(AllPCA1[GenesOut]) +1 - rank(abs(scale(AllPCA1[GenesOut])))
     
   }
   
@@ -227,10 +227,10 @@ DetectOutliers <- function(GeneOutDetection, GeneOutThr, ModulePCACenter,
     
     # Updating gene list
     FiltGenes <- CompatibleGenes[GenesOut]
-    FiltRank <- length(AllPCA1[GenesOut]) +1 - rank(AllPCA1[GenesOut])
+    FiltRank <- length(AllPCA1[GenesOut]) +1 - rank(abs(scale(AllPCA1[GenesOut])))
     
   }
   
-  return(list(FiltGenes = FiltGenes, FiltRank = FiltRank))
+  return(list(FiltGenes = FiltGenes, FiltRank = FiltRank, AllPCA1 = AllPCA1))
   
 }

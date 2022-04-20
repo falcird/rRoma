@@ -292,6 +292,8 @@ rRoma.R <- function(ExpressionMatrix,
   OutliersRank <- list()
   nGenes <- rep(NA, length(ModuleList))
   
+  AllPCA1 <- list()
+  
   # Filter genes for compatibility with the expression matrix
   
   for(i in 1:length(ModuleList)){
@@ -399,24 +401,32 @@ rRoma.R <- function(ExpressionMatrix,
     
     OutLiersList[[i]] <- SelGenes[["FiltGenes"]]
     OutliersRank[[i]] <- SelGenes[["FiltRank"]]
+    AllPCA1[[i]] <- SelGenes[["AllPCA1"]]
+    
     Genes_outliers_counts[OutLiersList[[i]]] <- lapply(Genes_outliers_counts[OutLiersList[[i]]], function(x){x+1})
     
   }
   
   #Adjusting for rarely found genes
+  genes_to_keep_counts <- c()
+  genes_to_keep_fisher <- c()
   genes_to_remove <- c()
   tot_pathways_counts <- sum(sapply(Genes_pathways_counts, "[[", 1))
   tot_outliers_counts <- sum(sapply(Genes_outliers_counts, "[[", 1))
   
   for(i in names(Genes_pathways_counts)){
-    if (Genes_pathways_counts[[i]] >= OutlierRarelyFoundThr & (fisher.test(matrix(c(tot_outliers_counts - Genes_outliers_counts[[i]], 
-                                                                                    Genes_outliers_counts[[i]], 
-                                                                                    tot_pathways_counts - Genes_pathways_counts[[i]], 
-                                                                                    Genes_pathways_counts[[i]]), nrow = 2))$p.value < OutlierFisherThr)){
-      genes_to_remove <- c(genes_to_remove, i)
+    if (Genes_pathways_counts[[i]] < OutlierRarelyFoundThr){
+      genes_to_keep_counts <- c(genes_to_keep_counts, i)
+    }
+    if (fisher.test(matrix(c(tot_outliers_counts - Genes_outliers_counts[[i]], Genes_outliers_counts[[i]], 
+                             tot_pathways_counts - Genes_pathways_counts[[i]], 
+                             Genes_pathways_counts[[i]]), nrow = 2))$p.value >= OutlierFisherThr){
+      genes_to_keep_fisher <- c(genes_to_keep_fisher, i)
     }
   }
   
+  genes_to_remove <- names(Genes_pathways_counts)[! names(Genes_pathways_counts) %in% union(genes_to_keep_counts, genes_to_keep_fisher)]
+  OriginalOutliers <- OutLiersList
   for(i in c(1:length(OutLiersList))){
     ranks <- rank(OutliersRank[[i]][OutLiersList[[i]] %in% genes_to_remove]) <= max(c(round(ModuleLengths[i]*OutliersPerc), 1))
     OutLiersList[[i]] <- OutLiersList[[i]][OutLiersList[[i]] %in% genes_to_remove][ranks]
@@ -446,9 +456,6 @@ rRoma.R <- function(ExpressionMatrix,
       return(NULL)
     }
     
-    ModuleList <- ModuleList[ToUse]
-    nGenes <- nGenes[ToUse]
-    KeptGenes <- KeptGenes[ToUse]
   } else {
     print("All the remainibg genesets will be used")
   }
@@ -471,7 +478,7 @@ rRoma.R <- function(ExpressionMatrix,
     
     SelGenes <- KeptGenes[[i]]
     
-    if(length(SelGenes) > MaxGenes | length(SelGenes) < MinGenes){
+    if(!ToUse[i]){
       print("Number of selected genes outside the specified range")
       print("Skipping module")
       next()
@@ -1183,12 +1190,14 @@ rRoma.R <- function(ExpressionMatrix,
     ReorderIdxs <- order(ModuleOrder[UsedModules])
     
     return(list(ModuleMatrix = ModuleMatrix[ReorderIdxs,], SampleMatrix = SampleMatrix[ReorderIdxs,], ModuleSummary = ModuleSummary[ReorderIdxs],
-                WeightList = WeightList[ReorderIdxs], PVVectMat = PVVectMat[ReorderIdxs,], OutLiersList = OutLiersList[ReorderIdxs],
-                GeneCenters = GeneCenters, SampleCenters = SampleCenters, InputPars = InputParList))
+                WeightList = WeightList[ReorderIdxs], PVVectMat = PVVectMat[ReorderIdxs,], OutLiersList = OutLiersList[ReorderIdxs], 
+                genes_to_keep_counts = genes_to_keep_counts, genes_to_keep_fisher = genes_to_keep_fisher, AllPCA1 = AllPCA1[ReorderIdxs],
+                OriginalOutliers = OriginalOutliers[ReorderIdxs], GeneCenters = GeneCenters, SampleCenters = SampleCenters, InputPars = InputParList))
   } else {
     return(list(ModuleMatrix = ModuleMatrix, SampleMatrix = SampleMatrix, ModuleSummary = ModuleSummary,
                 WeightList = WeightList, PVVectMat = PVVectMat, OutLiersList = OutLiersList,
-                GeneCenters = GeneCenters, SampleCenters = SampleCenters, InputPars = InputParList))
+                genes_to_keep_counts = genes_to_keep_counts, genes_to_keep_fisher = genes_to_keep_fisher, OriginalOutliers = OriginalOutliers,
+                AllPCA1 = AllPCA1, GeneCenters = GeneCenters, SampleCenters = SampleCenters, InputPars = InputParList))
   }
   
 }

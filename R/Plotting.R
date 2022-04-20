@@ -997,10 +997,111 @@ ExploreGeneProperties <- function(
   
 }
                       
+#' Plot several plots to investigate outliers
+#'
+#' @param RomaData list, the analysis returned by rRoma
+#' @param ExpressionMatrix matrix, the input data used to compute rRoma
+#' @param Selected vector, integer. The position of the genesets to study
+#' @param Plot_L1 boolean, to you want to plot the amount of variance explained by PC1 when a specific gene is removed ?
+#' @param Plot_Weights boolean, do you want to plot the distribution of gene weights ?
+#' 
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+PlotOutliers <- function(
+  RomaData,
+  ExpressionMatrix,
+  Selected = NULL,
+  Plot_L1 = TRUE,
+  Plot_Weights = FALSE){
 
+  if(is.null(Selected)){
+    Selected <- 1:nrow(RomaData$SampleMatrix)
+  }
+  
+  if(Plot_L1){
+    for(i in Selected){
+      to_plot <- data.frame("Genes" = RomaData$ModuleSummary[[i]]$OriginalGenes, 
+                            "L1_Data" = RomaData$AllPCA1[[i]], "Status" = rep("Kept_Base", length(RomaData$ModuleSummary[[i]]$OriginalGenes)))
+      to_plot[to_plot$Genes %in% RomaData$OriginalOutliers[[i]], c("Status")] <- "Kept_%_outliers"
+      to_plot[to_plot$Genes %in% RomaData$OutLiersList[[i]], c("Status")]<- "Outlier"
+      to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_fisher, RomaData$OriginalOutliers[[i]]), c("Status")] <- "Kept_Fisher"
+      to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_counts, RomaData$OriginalOutliers[[i]]), c("Status")] <- "Kept_Counts"
+      
+      
+      B <- boxplot(x = to_plot$L1_Data, at = 1, horizontal = FALSE, ylab = "Variance explained by PC1", main = RomaData$ModuleSummary[i]$ModuleName)
+      if(sum(to_plot$Status == "Outlier") > 0){
+        points(y= to_plot[to_plot$Status == "Outlier", c("L1_Data")], x=rep(1, length(to_plot[to_plot$Status == "Outlier", c("L1_Data")])), col='red', pch=20)
+        text(y= to_plot[to_plot$Status == "Outlier", c("L1_Data")], x = rep(1,length(to_plot[to_plot$Status == "Outlier", c("L1_Data")])), 
+            labels = to_plot[to_plot$Status == "Outlier", c("Genes")], pos = 4)
+      }
+      
+      if(sum(to_plot$Status == "Kept_Counts") > 0){
+        points(y= to_plot[to_plot$Status == "Kept_Counts", c("L1_Data")], x=rep(1, length(to_plot[to_plot$Status == "Kept_Counts", c("L1_Data")])), col='blue', pch=20)
+        text(y= to_plot[to_plot$Status == "Kept_Counts", c("L1_Data")], x = rep(1,length(to_plot[to_plot$Status == "Kept_Counts", c("L1_Data")])), 
+            labels = to_plot[to_plot$Status == "Kept_Counts", c("Genes")], pos = 4)
+      }
+      
+      if(sum(to_plot$Status == "Kept_Fisher") > 0){
+        points(y= to_plot[to_plot$Status == "Kept_Fisher", c("L1_Data")], x=rep(1, length(to_plot[to_plot$Status == "Kept_Fisher", c("L1_Data")])), col='green', pch=20)
+        text(y= to_plot[to_plot$Status == "Kept_Fisher", c("L1_Data")], x = rep(1,length(to_plot[to_plot$Status == "Kept_Fisher", c("L1_Data")])), 
+            labels = to_plot[to_plot$Status == "Kept_Fisher", c("Genes")], pos = 4)
+      }
+      
+      if(sum(to_plot$Status == "Kept_%_outliers") > 0){
+        points(y= to_plot[to_plot$Status == "Kept_%_outliers", c("L1_Data")], x=rep(1, length(to_plot[to_plot$Status == "Kept_%_outliers", c("L1_Data")])), col='purple', pch=20)
+        text(y= to_plot[to_plot$Status == "Kept_%_outliers", c("L1_Data")], x = rep(1,length(to_plot[to_plot$Status == "Kept_%_outliers", c("L1_Data")])), 
+            labels = to_plot[to_plot$Status == "Kept_%_outliers", c("Genes")], pos = 4)
+      }
+      
+      legend("left", pch = c(20, 20, 20, 20), col=c('red', 'blue', 'green', "purple"), legend = c("Outlier(s)", "Kept Counts", "Kept Fisher", "Kept % Outliers"))
+      
+    }
+  }
+  
+  if(Plot_Weights){
+    for(i in Selected){
+      to_plot <- data.frame("Genes" = RomaData$ModuleSummary[[i]]$OriginalGenes, 
+                            "Weights" = RomaData$ModuleSummary[[i]]$GeneWeightUnf, "Status" = rep("Kept_Base", length(RomaData$ModuleSummary[[i]]$OriginalGenes)))
+      to_plot[to_plot$Genes %in% RomaData$OriginalOutliers[[i]], c("Status")] <- "Kept_%_outliers"
+      to_plot[to_plot$Genes %in% RomaData$OutLiersList[[i]], c("Status")]<- "Outlier"
+      to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_fisher, RomaData$OriginalOutliers[[i]]), c("Status")] <- "Kept_Fisher"
+      to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_counts, RomaData$OriginalOutliers[[i]]), c("Status")] <- "Kept_Counts"
+      
+      
+      B <- boxplot(x = to_plot$Weights, at = 1, horizontal = FALSE, ylab = "Gene Weight", main = RomaData$ModuleSummary[i]$ModuleName)
+      if(sum(to_plot$Status == "Outlier") > 0){
+        points(y= to_plot[to_plot$Status == "Outlier", c("Weights")], x=rep(1, length(to_plot[to_plot$Status == "Outlier", c("Weights")])), col='red', pch=20)
+        text(y= to_plot[to_plot$Status == "Outlier", c("Weights")], x = rep(1,length(to_plot[to_plot$Status == "Outlier", c("Weights")])), 
+             labels = to_plot[to_plot$Status == "Outlier", c("Genes")], pos = 4)
+      }
+      
+      if(sum(to_plot$Status == "Kept_Counts") > 0){
+        points(y= to_plot[to_plot$Status == "Kept_Counts", c("Weights")], x=rep(1, length(to_plot[to_plot$Status == "Kept_Counts", c("Weights")])), col='blue', pch=20)
+        text(y= to_plot[to_plot$Status == "Kept_Counts", c("Weights")], x = rep(1,length(to_plot[to_plot$Status == "Kept_Counts", c("Weights")])), 
+             labels = to_plot[to_plot$Status == "Kept_Counts", c("Genes")], pos = 4)
+      }
+      
+      if(sum(to_plot$Status == "Kept_Fisher") > 0){
+        points(y= to_plot[to_plot$Status == "Kept_Fisher", c("Weights")], x=rep(1, length(to_plot[to_plot$Status == "Kept_Fisher", c("Weights")])), col='green', pch=20)
+        text(y= to_plot[to_plot$Status == "Kept_Fisher", c("Weights")], x = rep(1,length(to_plot[to_plot$Status == "Kept_Fisher", c("Weights")])), 
+             labels = to_plot[to_plot$Status == "Kept_Fisher", c("Genes")], pos = 4)
+      }
+      
+      if(sum(to_plot$Status == "Kept_%_outliers") > 0){
+        points(y= to_plot[to_plot$Status == "Kept_%_outliers", c("Weights")], x=rep(1, length(to_plot[to_plot$Status == "Kept_%_outliers", c("Weights")])), col='purple', pch=20)
+        text(y= to_plot[to_plot$Status == "Kept_%_outliers", c("Weights")], x = rep(1,length(to_plot[to_plot$Status == "Kept_%_outliers", c("Weights")])), 
+             labels = to_plot[to_plot$Status == "Kept_%_outliers", c("Genes")], pos = 4)
+      }
+      
+      legend("left", pch = c(20, 20, 20, 20), col=c('red', 'blue', 'green', "purple"), legend = c("Outlier(s)", "Kept Counts", "Kept Fisher", "Kept % Outliers"))
+      
+    }
+  }
 
-
-
+}
 
 
 
