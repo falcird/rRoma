@@ -574,7 +574,7 @@ PlotSampleProjections <- function(RomaData, PlotSamples = 40,
 #' @export
 #'
 #' @examples
-PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'none'){
+PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'Points'){
   
   if(is.null(Selected)){
     Selected <- 1:nrow(RomaData$SampleMatrix)
@@ -1004,6 +1004,7 @@ ExploreGeneProperties <- function(
 #' @param Selected vector, integer. The position of the genesets to study
 #' @param Plot_L1 boolean, to you want to plot the amount of variance explained by PC1 when a specific gene is removed ?
 #' @param Plot_Weights boolean, do you want to plot the distribution of gene weights ?
+#' @param Plot_Projection boolean, do you want to plot the outlier genes in the PC1/PC2 space ?
 #' 
 #' @return
 #' @export
@@ -1015,7 +1016,8 @@ PlotOutliers <- function(
   ExpressionMatrix,
   Selected = NULL,
   Plot_L1 = TRUE,
-  Plot_Weights = FALSE){
+  Plot_Weights = FALSE,
+  Plot_Projection = FALSE){
 
   if(is.null(Selected)){
     Selected <- 1:nrow(RomaData$SampleMatrix)
@@ -1031,7 +1033,7 @@ PlotOutliers <- function(
       to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_counts, RomaData$OriginalOutliers[[i]]), c("Status")] <- "Kept_Counts"
       
       
-      B <- boxplot(x = to_plot$L1_Data, at = 1, horizontal = FALSE, ylab = "Variance explained by PC1", main = RomaData$ModuleSummary[i]$ModuleName)
+      B <- boxplot(x = to_plot$L1_Data, at = 1, horizontal = FALSE, ylab = "Variance explained by PC1", main = RomaData$ModuleSummary[[i]]$ModuleName)
       if(sum(to_plot$Status == "Outlier") > 0){
         points(y= to_plot[to_plot$Status == "Outlier", c("L1_Data")], x=rep(1, length(to_plot[to_plot$Status == "Outlier", c("L1_Data")])), col='red', pch=20)
         text(y= to_plot[to_plot$Status == "Outlier", c("L1_Data")], x = rep(1,length(to_plot[to_plot$Status == "Outlier", c("L1_Data")])), 
@@ -1071,7 +1073,7 @@ PlotOutliers <- function(
       to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_counts, RomaData$OriginalOutliers[[i]]), c("Status")] <- "Kept_Counts"
       
       
-      B <- boxplot(x = to_plot$Weights, at = 1, horizontal = FALSE, ylab = "Gene Weight", main = RomaData$ModuleSummary[i]$ModuleName)
+      B <- boxplot(x = to_plot$Weights, at = 1, horizontal = FALSE, ylab = "Gene Weight", main = RomaData$ModuleSummary[[i]]$ModuleName)
       if(sum(to_plot$Status == "Outlier") > 0){
         points(y= to_plot[to_plot$Status == "Outlier", c("Weights")], x=rep(1, length(to_plot[to_plot$Status == "Outlier", c("Weights")])), col='red', pch=20)
         text(y= to_plot[to_plot$Status == "Outlier", c("Weights")], x = rep(1,length(to_plot[to_plot$Status == "Outlier", c("Weights")])), 
@@ -1098,6 +1100,52 @@ PlotOutliers <- function(
       
       legend("left", pch = c(20, 20, 20, 20), col=c('red', 'blue', 'green', "purple"), legend = c("Outlier(s)", "Kept Counts", "Kept Fisher", "Kept % Outliers"))
       
+    }
+  }
+  
+  if(Plot_Projection){
+    for(i in Selected){
+      
+      to_plot <- data.frame("Genes" = RomaData$ModuleSummary[[i]]$OriginalGenes, 
+                            "PC1" = RomaData$ModuleSummary[[i]]$PCBaseUnf$x[,1]*RomaData$ModuleSummary[[i]]$CorrectSignUnf, 
+                            "PC2" = RomaData$ModuleSummary[[i]]$PCBaseUnf$x[,2]*RomaData$ModuleSummary[[i]]$CorrectSignUnf,
+                            "Status" = rep("Kept_Base", length(RomaData$ModuleSummary[[i]]$OriginalGenes)))
+      to_plot$Color <- "gray"
+      
+      to_plot[to_plot$Genes %in% RomaData$OriginalOutliers[[i]], c("Status")] <- "Kept_%_outliers"
+      to_plot[to_plot$Genes %in% RomaData$OriginalOutliers[[i]], c("Color")] <- "purple"
+      
+      to_plot[to_plot$Genes %in% RomaData$OutLiersList[[i]], c("Status")]<- "Outlier"
+      to_plot[to_plot$Genes %in% RomaData$OutLiersList[[i]], c("Color")]<- "red"
+      
+      to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_fisher, RomaData$OriginalOutliers[[i]]), c("Status")] <- "Kept_Fisher"
+      to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_fisher, RomaData$OriginalOutliers[[i]]), c("Color")] <- "green"
+      
+      to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_counts, RomaData$OriginalOutliers[[i]]), c("Status")] <- "Kept_Counts"
+      to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_counts, RomaData$OriginalOutliers[[i]]), c("Color")] <- "blue"
+      
+      
+      XLims <- quantile(to_plot$PC1, c(.01, .99))
+      XLims[1] <- min(XLims[1], min(PC1Data))
+      XLims[2] <- max(XLims[2], max(PC1Data))
+      
+      YLims <- quantile(to_plot$PC2, c(.01, .99))
+      YLims[1] <- min(YLims[1], min(PC2Data))
+      YLims[2] <- max(YLims[2], max(PC2Data))
+      
+      to_plot_unique <- unique(to_plot[, c("Status", "Color")])
+      
+      p <- ggplot2::ggplot(to_plot, ggplot2::aes(x = PC1, y = PC2, colour = Status, alpha=Status, label = Status, colour = Status)) + ggplot2::geom_point() +
+        ggplot2::scale_alpha_manual(values=c(Data=1, Sampling=.2), guide=FALSE) +
+        ggplot2::scale_x_continuous(limits = XLims) +
+        ggplot2::scale_y_continuous(limits = YLims) +
+        scale_colour_manual(breaks = to_plot_unique$Status, values = as.character(to_plot_unique$Color)) +
+        ggplot2::ggtitle(RomaData$ModuleSummary[[i]]$ModuleName) +
+        ggplot2::geom_hline(yintercept=0) + ggplot2::geom_vline(xintercept=0) +
+        ggplot2::geom_text(aes(label=ifelse(Status %in% c("Kept_%_outliers", "Outlier", "Kept_Fisher", "Kept_Counts"),as.character(Genes),'')),hjust=0,vjust=0)
+        
+        print(p)
+
     }
   }
 

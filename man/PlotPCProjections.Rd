@@ -4,7 +4,7 @@
 \alias{PlotPCProjections}
 \title{Plot PC projections score across selected samples}
 \usage{
-PlotPCProjections(RomaData, Selected = NULL, PlotPCProj = "none")
+PlotPCProjections(RomaData, Selected = NULL, PlotPCProj = "Points")
 }
 \arguments{
 \item{RomaData}{list, the analysis returned by rRoma}

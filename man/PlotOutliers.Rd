@@ -9,7 +9,8 @@ PlotOutliers(
   ExpressionMatrix,
   Selected = NULL,
   Plot_L1 = TRUE,
-  Plot_Weights = FALSE
+  Plot_Weights = FALSE,
+  Plot_Projection = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ PlotOutliers(
 \item{Plot_L1}{boolean, to you want to plot the amount of variance explained by PC1 when a specific gene is removed ?}
 
 \item{Plot_Weights}{boolean, do you want to plot the distribution of gene weights ?}
+
+\item{Plot_Projection}{boolean, do you want to plot the outlier genes in the PC1/PC2 space ?}
 }
 \value{
 
