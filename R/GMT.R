@@ -321,6 +321,9 @@ SelectFromInternalDB <- function(SearchString, BDName = "MsigDB", Version = NULL
               unlist(lapply(lapply(InternalDB[SelGeneSets], "[[", "Genes"), length)),
               " genes)",sep=''))
   
+  InternalDB <- lapply(InternalDB, function(x){
+    names(x)[4] <- "Weights"
+    x})
   return(InternalDB[SelGeneSets])
   
 }
