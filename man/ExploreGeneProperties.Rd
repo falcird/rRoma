@@ -32,7 +32,7 @@ ExploreGeneProperties(
 
 \item{PlotExpMean}{boolean. Do you want to plot the expression mean of the gene compared to all other genes in the dataset ?}
 
-\item{PlotExpDist}{boolean. Do you want to plot the distribtion of the expression of the gene in all samples ? 
+\item{PlotExpDist}{boolean. Do you want to plot the distribution of the expression of the gene in all samples ? 
 If Groups are supplied, also shows potential significant differences between groups for this gene}
 
 \item{PlotWeight}{boolean. Do you want to plot the gene weight for the considered gene sets, compared to all other gene weights ?}

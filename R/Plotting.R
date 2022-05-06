@@ -675,7 +675,7 @@ PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'Points'){
 #' @param GroupInfo vector, character. A vector describing the group association of each sample.
 #' @param PlotExpVar boolean. Do you want to plot the expression variance of the gene compared to all other genes in the dataset ?
 #' @param PlotExpMean boolean. Do you want to plot the expression mean of the gene compared to all other genes in the dataset ?
-#' @param PlotExpDist boolean. Do you want to plot the distribtion of the expression of the gene in all samples ? 
+#' @param PlotExpDist boolean. Do you want to plot the distribution of the expression of the gene in all samples ? 
 #' If Groups are supplied, also shows potential significant differences between groups for this gene 
 #' @param PlotWeight boolean. Do you want to plot the gene weight for the considered gene sets, compared to all other gene weights ?
 #' @param PlotExpSampleScore boolean. Do you want to plot gene expression against sample score for the considered gene sets ?
@@ -1123,15 +1123,15 @@ PlotOutliers <- function(
       
       to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_counts, RomaData$OriginalOutliers[[i]]), c("Status")] <- "Kept_Counts"
       to_plot[to_plot$Genes %in% intersect(RomaData$genes_to_keep_counts, RomaData$OriginalOutliers[[i]]), c("Color")] <- "blue"
-      
+  
       
       XLims <- quantile(to_plot$PC1, c(.01, .99))
-      XLims[1] <- min(XLims[1], min(PC1Data))
-      XLims[2] <- max(XLims[2], max(PC1Data))
+      XLims[1] <- min(XLims[1], min(to_plot$PC1))
+      XLims[2] <- max(XLims[2], max(to_plot$PC1))
       
       YLims <- quantile(to_plot$PC2, c(.01, .99))
-      YLims[1] <- min(YLims[1], min(PC2Data))
-      YLims[2] <- max(YLims[2], max(PC2Data))
+      YLims[1] <- min(YLims[1], min(to_plot$PC2))
+      YLims[2] <- max(YLims[2], max(to_plot$PC2))
       
       to_plot_unique <- unique(to_plot[, c("Status", "Color")])
       

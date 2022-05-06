@@ -26,7 +26,6 @@
 #' @param GeneSelMode character scalar, mode used to sample genes: all available genes ("All") or genes not present in the module ("Others")
 #' @param centerData logical, should the gene expression values be centered over the samples?
 #' @param MoreInfo logical, should detailed information on the computation be printed?
-#' @param PlotData logical, should debugging plots be produced ?
 #' @param SampleFilter logical, should outlier detection be applied to sampled data as well?
 #' @param PCADims integer, the number of PCA dimensions to compute. Should be >= 2. Note that the value 1 is allowed,
 #' but is not advisable under normal circumstances.
@@ -44,6 +43,8 @@
 #' \item 'CorrelateAllWeightsBySample': the direction is chosen in such a way as to maximize the positive correlation between the expression of genes and the PC corrected weight
 #' (i.e., PC weights are multiplied by gene weights), missing weights are set to DefaultWeight
 #' \item 'CorrelateKnownWeightsBySample': as 'CorrelateAllWeightsBySample', but missing weights are set to 0
+#' \item 'UseMeanExpressionAllWeights': Only looking at the x% of most extreme gene weights. Then multiplying by corresponding mean expression across samples (scaled) and sum results for each gene. If negative, change sign.
+#' \item 'UseMeanExpressionKnownWeights': as 'UseMeanExpressionAllWeights', but missing weights are set to 0
 #' }
 #' If 'CorrelateAllWeights', 'CorrelateKnownWeights', 'CorrelateAllWeightsBySample' or 'CorrelateKnownWeightsBySample' are used
 #' and GroupPCSign is TRUE, the correlations will be computed on the groups defined by Grouping.
@@ -65,7 +66,6 @@
 #' @param SuppressWarning boolean, should warnings be displayed? This option can be ignored in non-interactive sessions.
 #' @param ShowParallelPB boolean, should the progress bar be displayed when using parallel processing ? Note that the
 #' progress bar is displayed via the pbapply package. This may slow down the computation, especially when using FORK clusters.
-#' @param ShiftedAsOverdispersed boolean, do you want ROMA to consider shifted gene sets as overdispersed ? Available only if FixedCenter is TRUE
 #' @param OutlierRarelyFoundThr numeric scalar, the minimum number of pathways in which a gene has to be found to potentially be considered as an outlier
 #' @param OutlierFisherThr numeric scalar, the fisher p value to use as threshold to detect outliers.
 #' @param OutliersPerc numeric, how much of the data should be removed based on outliers ? (eg 0.05 for a maximum of 5% of outliers)
@@ -91,7 +91,6 @@ rRoma.R <- function(ExpressionMatrix,
                            GeneSelMode = "All",
                            SampleFilter = TRUE,
                            MoreInfo = FALSE,
-                           PlotData = FALSE,
                            PCADims = 2,
                            PCSignMode ='none',
                            PCSignThr = 0.90,
@@ -101,13 +100,12 @@ rRoma.R <- function(ExpressionMatrix,
                            SamplingGeneWeights = NULL,
                            FillNAMethod = list(),
                            Grouping = NULL,
-                           FullSampleInfo = FALSE,
+                           FullSampleInfo = TRUE,
                            SampleSign = FALSE,
                            GroupPCSign = FALSE,
                            CorMethod = "pearson",
                            SuppressWarning = FALSE,
                            ShowParallelPB = FALSE,
-                           ShiftedAsOverdispersed = FALSE,
                            OutlierRarelyFoundThr = 5,
                            OutlierFisherThr = 0.05,
                            OutliersPerc = 0.05) {
@@ -182,31 +180,15 @@ rRoma.R <- function(ExpressionMatrix,
     }
   }
   
-  if(FullSampleInfo & interactive()){
+  if(SampleSign & interactive()){
     print("PC projections and weights will be computed and reoriented for sampled genesets. This is potentially very time consuming.")
     if(!SuppressWarning){
       Ans <- readline("Are you sure you want to do that? (y/n)")
       if(Ans != "y" & Ans != "Y"){
-        FullSampleInfo <- FALSE
-        print("PC projections and weights will NOT be computed and reoriented for sampled genesets.")
+        SampleSign <- FALSE
+        print("PC projections and weights will NOT be reoriented for sampled genesets.")
       } else {
         print("PC projections and weights will be computed and reoriented for sampled genesets.")
-      }
-    }
-  }
-  
-  
-  
-  if(PlotData & interactive()){
-    print("Diagnostic plots will be produced. This is time consuming and can produce errors expecially if done interactivelly.")
-    print("It is advisable to only use this option if a relatively small number of genesets is analyzed and/or to redirect the graphic out (e.g. with pdf())")
-    if(!SuppressWarning){
-      Ans <- readline("Are you sure you want to do that? (y/n)")
-      if(Ans != "y" & Ans != "Y"){
-        PlotData <- FALSE
-        print("Diagnostic plots will NOT be produced.")
-      } else {
-        print("Diagnostic plots will be produced.")
       }
     }
   }
@@ -391,12 +373,12 @@ rRoma.R <- function(ExpressionMatrix,
     if(UseParallel){
       SelGenes <- DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
                                         CompatibleGenes = CompatibleGenes, ExpressionData = ExpressionMatrix[CompatibleGenes, ],
-                                        PlotData = PlotData, ModuleName = ModuleList[[i]]$Name, Mode = 3,
+                                        ModuleName = ModuleList[[i]]$Name, Mode = 3,
                                         ClusType = ClusType, cl = cl)
     } else {
       SelGenes <- DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
                                         CompatibleGenes = CompatibleGenes, ExpressionData = ExpressionMatrix[CompatibleGenes, ],
-                                        PlotData = PlotData, ModuleName = ModuleList[[i]]$Name, Mode = 1)
+                                        ModuleName = ModuleList[[i]]$Name, Mode = 1)
     }
     
     OutLiersList[[i]] <- SelGenes[["FiltGenes"]]
@@ -581,7 +563,7 @@ rRoma.R <- function(ExpressionMatrix,
           
           if(SampleFilter){
             SampleSelGenes <- setdiff(Gl, DetectOutliers(GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr, ModulePCACenter = FALSE,
-                                                    CompatibleGenes = Gl, ExpressionData = ExpressionMatrix[Gl, ], PlotData = FALSE,
+                                                    CompatibleGenes = Gl, ExpressionData = ExpressionMatrix[Gl, ],
                                                     ModuleName = '', PrintInfo = FALSE)[["FiltGenes"]])
             if(length(SampleSelGenes)<PCADims){
               warning(paste("Size of filtered sample geneset too small (",  length(SampleSelGenes), "). This may cause inconsitencies. Increase MinGenes or GeneOutThr to prevent the problem from happening"))
@@ -760,24 +742,6 @@ rRoma.R <- function(ExpressionMatrix,
       
     }
     
-    
-    if(PlotData){
-      boxplot(SampleExpVar[1,], at = 1, ylab = "Explained variance",
-              main = ModuleList[[i]]$Name, ylim = range(c(SampleExpVar[1,], ExpVar[1])))
-      points(x=1, y=ExpVar[1], pch = 20, col="red", cex= 2)
-      
-      if(PCADims >= 2){
-        boxplot(SampleExpVar[2,], at = 1, ylab = "Explained variance (PC1) / Explained variance (PC2)",
-                log = "y", main = ModuleList[[i]]$Name, ylim=range(c(SampleExpVar[2,], ExpVar[1]/ExpVar[2])))
-        points(x=1, y=ExpVar[1]/ExpVar[2], pch = 20, col="red", cex= 2)
-      }
-      
-      boxplot(SamplePC1Mean, at = 1, ylab = "Median expression PC1",
-              main = ModuleList[[i]]$Name, ylim=range(c(SampleMedianExp, median(BaseMatrix))))
-      points(x=1, y=PC1Mean, pch = 20, col="red", cex= 2)
-      
-    }
-    
     L1Vect <- SampleExpVar[1,] - ExpVar[1]
     L1Vect <- L1Vect[is.finite(L1Vect)]
     
@@ -879,211 +843,6 @@ rRoma.R <- function(ExpressionMatrix,
       CorrectSign2 = NULL
     }
     
-    if(PlotData){
-      
-      if(PCADims >= 2 & !is.null(GroupPCsVect)){
-        
-        
-        DF <- data.frame(GS1 = CorrectSign1*GeneScore1, GS2 = CorrectSign2*GeneScore2,
-                         Group = GroupPCsVect)
-        
-        p <- ggplot2::ggplot(DF, ggplot2::aes(x=GS1, y=GS2, color = Group)) + ggplot2::geom_point() +
-          ggplot2::labs(title = ModuleList[[i]]$Name) + ggplot2::guides(color = "none")
-        print(p)
-        
-      }
-      else if (PCADims >= 2){
-        
-        
-        DF <- data.frame(GS1 = CorrectSign1*GeneScore1, GS2 = CorrectSign2*GeneScore2)
-        
-        p <- ggplot2::ggplot(DF, ggplot2::aes(x=GS1, y=GS2)) + ggplot2::geom_point() +
-          ggplot2::labs(title = ModuleList[[i]]$Name) + ggplot2::guides(color = "none")
-        print(p)
-        
-      }
-      
-      WeiVect <- ModuleList[[i]]$Weights[ModuleList[[i]]$Genes %in% SelGenes]
-      names(WeiVect) <- SelGenes
-      
-      if(PCSignMode %in% c('UseAllWeights', 'CorrelateAllWeightsBySample', 'CorrelateAllWeightsByGene')){
-        WeiVect[is.na(WeiVect)] <- DefaultWeight
-      }
-      
-      # print(WeiVect)
-      
-      if(any(!is.na(WeiVect))){
-        
-        LocMat <- OrgExpMatrix[SelGenes[!is.na(WeiVect)], ]
-        
-        MeltData <- reshape::melt(LocMat)
-        colnames(MeltData) <- c("Gene", "Sample", "Exp")
-        
-        MeltData <- cbind(MeltData, Grouping[as.character(MeltData$Sample)])
-        colnames(MeltData)[4] <- c("Group")
-        
-        MeltData <- cbind(MeltData, WeiVect[as.character(MeltData$Gene)])
-        colnames(MeltData)[5] <- c("Wei")
-        
-        CorrGS <- CorrectSign1*GeneScore1
-        names(CorrGS) <- SelGenes
-        
-        CorrSS <- CorrectSign1*SampleScore1
-        names(CorrSS) <- colnames(OrgExpMatrix[SelGenes,])
-        
-        MeltData <- cbind(MeltData, CorrSS[as.character(MeltData$Sample)], CorrGS[as.character(MeltData$Gene)])
-        colnames(MeltData)[6:7] <- c("SampleSco", "GeneWei")
-        
-        MeltData$Wei <- factor(MeltData$Wei)
-        
-        
-        SplitGroups <- cut(seq(from=1, by=1, to = length(unique(MeltData$Gene))),
-                           breaks = seq(from=0, to=length(unique(MeltData$Gene))+16, by=16))
-        
-        
-        # check here!
-        # Order gene plot by weigt
-        
-        names(SplitGroups) <- sort(unique(MeltData$Gene))
-        
-        print("Plotting expression VS sample score")
-        
-        for(GeneGroup in levels(SplitGroups)){
-          
-          GenesToUse <- names(SplitGroups[as.character(SplitGroups) == GeneGroup])
-          
-          if(length(GenesToUse)>0){
-            p <- ggplot2::ggplot(MeltData[as.character(MeltData$Gene) %in% GenesToUse,],
-                                 ggplot2::aes(y=Exp, x=SampleSco, shape = Wei, color = Group)) + ggplot2::geom_point() +
-              ggplot2::facet_wrap( ~ Gene, scales = "free_y") + ggplot2::labs(title = ModuleList[[i]]$Name, x = "Sample score", y = "Expression") +
-              ggplot2::scale_shape_discrete(name = "Weight") + ggplot2::scale_color_discrete(name = "Group")
-            print(p)
-          }
-          
-          
-        }
-        
-        print("Plotting correlations of expression VS sample score")
-        
-        CorData <- apply(LocMat, 1, function(x){
-          CT <- cor.test(x, CorrSS)
-          return(c(CT$estimate, CT$conf.int))
-        })
-        
-        CorData <- t(rbind(CorData, sign(WeiVect[colnames(CorData)])*sign(CorData[1,])))
-        
-        CorData <- cbind(rownames(CorData), CorData)
-        colnames(CorData) <- c("Gene",  "Est", "Low", "High", "Conc")
-        
-        CorData <- data.frame(CorData)
-        
-        CorData$Est <- as.numeric(as.character(CorData$Est))
-        CorData$Low <- as.numeric(as.character(CorData$Low))
-        CorData$High <- as.numeric(as.character(CorData$High))
-        
-        # SplitGroups <- cut(seq(from=1, by=1, to = length(unique(CorData$Gene))),
-        #                    breaks = seq(from=0, to=length(unique(CorData$Gene))+16, by=16))
-        #
-        # names(SplitGroups) <- unique(MeltData$Gene)
-        
-        # print(CorData)
-        
-        for(GeneGroup in levels(SplitGroups)){
-          
-          GenesToUse <- names(SplitGroups[as.character(SplitGroups) == GeneGroup])
-          
-          # print(GenesToUse)
-          
-          if(length(GenesToUse)>0){
-            p <- ggplot2::ggplot(CorData[as.character(CorData$Gene) %in% GenesToUse,],
-                                 ggplot2::aes(x =  Gene, y = Est, ymin = Low, ymax = High, color = Conc)) +
-              ggplot2::geom_hline(yintercept = 0, linetype = 2) + ggplot2::geom_errorbar() +
-              ggplot2::geom_point() + ggplot2::coord_flip() +
-              ggplot2::labs(title = ModuleList[[i]]$Name, y = "Estimated correlation (Exp VS Sample Score - 95% CI)", x = "")
-            
-            print(p)
-          }
-          
-        }
-        
-        
-        
-        print("Plotting expression VS gene weight")
-        
-        for(GroupID in levels(MeltData$Group)){
-          
-          if(sum(as.character(MeltData$Group) == GroupID, na.rm = TRUE)>0){
-            p <- ggplot2::ggplot(MeltData[as.character(MeltData$Group) == GroupID & !is.na(MeltData$Group),],
-                                 ggplot2::aes(y=Exp, x=GeneWei, shape = Wei, color = Group)) + ggplot2::geom_point() +
-              ggplot2::facet_wrap( ~ Sample, scales = "free_y") + ggplot2::labs(title = ModuleList[[i]]$Name, x = "Gene weight", y = "Expression") +
-              ggplot2::scale_shape_discrete(name = "Gene weight") + ggplot2::scale_color_discrete(name = "Group")
-            print(p)
-          }
-          
-        }
-        
-        if(any(is.na(MeltData$Group))){
-          tData <- MeltData[is.na(MeltData$Group),]
-          tData$Group <- 'N/A'
-          p <- ggplot2::ggplot(tData, ggplot2::aes(y=Exp, x=GeneWei, shape = Wei, color = Group)) + ggplot2::geom_point() +
-            ggplot2::facet_wrap( ~ Sample) + ggplot2::labs(title = ModuleList[[i]]$Name, x = "Gene weight", y = "Expression") +
-            ggplot2::scale_shape_discrete(name = "Gene weight") + ggplot2::scale_color_discrete(name = "Group")
-          print(p)
-        }
-        
-        
-        
-        
-        print("Plotting correlation of expression VS gene weight")
-        
-        CorData <- apply(LocMat, 2, function(x){
-          CT <- cor.test(x[!is.na(CorrGS)], CorrGS[!is.na(CorrGS)])
-          return(c(CT$estimate, CT$conf.int))
-        })
-        
-        CorData <- t(rbind(CorData, Grouping[colnames(CorData)]))
-        
-        CorData <- cbind(rownames(CorData), CorData)
-        colnames(CorData) <- c("Gene",  "Est", "Low", "High", "Group")
-        
-        CorData <- data.frame(CorData)
-        
-        CorData$Est <- as.numeric(as.character(CorData$Est))
-        CorData$Low <- as.numeric(as.character(CorData$Low))
-        CorData$High <- as.numeric(as.character(CorData$High))
-        
-        
-        # print(CorData)
-        
-        for(GroupID in levels(CorData$Group)){
-          
-          if(sum(as.character(CorData$Group) == GroupID, na.rm = TRUE)>0){
-            p <- ggplot2::ggplot(CorData[as.character(CorData$Group) == GroupID & !is.na(CorData$Group),],
-                                 ggplot2::aes(x =  Gene, y = Est, ymin = Low, ymax = High, color = Group)) +
-              ggplot2::geom_hline(yintercept = 0, linetype = 2) + ggplot2::geom_errorbar() +
-              ggplot2::geom_point() + ggplot2::coord_flip() +
-              ggplot2::labs(title = ModuleList[[i]]$Name, y = "Estimated correlation (Exp VS Gene Wei - 95% CI)", x = "")
-            
-            print(p)
-          }
-          
-        }
-        
-        if(any(is.na(CorData$Group))){
-          tData <- CorData[is.na(CorData$Group),]
-          tData$Group <- 'N/A'
-          p <- ggplot2::ggplot(tData, ggplot2::aes(x =  Gene, y = Est, ymin = Low, ymax = High, color = Group)) +
-            ggplot2::geom_hline(yintercept = 0, linetype = 2) + ggplot2::geom_errorbar() +
-            ggplot2::geom_point() + ggplot2::coord_flip() +
-            ggplot2::labs(title = ModuleList[[i]]$Name, y = "Estimated correlation (Exp VS Gene Wei - 95% CI)", x = "")
-          
-          print(p)
-        }
-        
-      }
-      
-    }
-    
     # Correct the sign of the first PC projections
     names(GeneScore1) <- SelGenes
     names(SampleScore1) <- colnames(ExpressionMatrix)
@@ -1180,7 +939,7 @@ rRoma.R <- function(ExpressionMatrix,
                        OutGeneNumber = OutGeneNumber, Ncomp = Ncomp, OutGeneSpace = OutGeneSpace,
                        GeneOutDetection = GeneOutDetection, GeneOutThr = GeneOutThr,
                        GeneSelMode = GeneSelMode, SampleFilter = SampleFilter, MoreInfo = MoreInfo,
-                       PlotData = PlotData, PCSignMode = PCSignMode, PCSignThr = PCSignThr,
+                       PCSignMode = PCSignMode, PCSignThr = PCSignThr,
                        UseParallel = UseParallel, nCores = nCores, ClusType = ClusType,
                        SamplingGeneWeights = SamplingGeneWeights, FillNAMethod = FillNAMethod,
                        Grouping = Grouping, FullSampleInfo = FullSampleInfo, GroupPCSign = GroupPCSign,

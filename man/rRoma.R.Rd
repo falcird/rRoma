@@ -23,7 +23,6 @@ rRoma.R(
   GeneSelMode = "All",
   SampleFilter = TRUE,
   MoreInfo = FALSE,
-  PlotData = FALSE,
   PCADims = 2,
   PCSignMode = "none",
   PCSignThr = 0.9,
@@ -33,13 +32,12 @@ rRoma.R(
   SamplingGeneWeights = NULL,
   FillNAMethod = list(),
   Grouping = NULL,
-  FullSampleInfo = FALSE,
+  FullSampleInfo = TRUE,
   SampleSign = FALSE,
   GroupPCSign = FALSE,
   CorMethod = "pearson",
   SuppressWarning = FALSE,
   ShowParallelPB = FALSE,
-  ShiftedAsOverdispersed = FALSE,
   OutlierRarelyFoundThr = 5,
   OutlierFisherThr = 0.05,
   OutliersPerc = 0.05
@@ -92,8 +90,6 @@ minimal percentage variation (L1OutVarPerc) or the number of median-absolute-dev
 
 \item{MoreInfo}{logical, should detailed information on the computation be printed?}
 
-\item{PlotData}{logical, should debugging plots be produced ?}
-
 \item{PCADims}{integer, the number of PCA dimensions to compute. Should be >= 2. Note that the value 1 is allowed,
 but is not advisable under normal circumstances.
 Larger values decrease the error in the estimation of the explained variance but increase the computation time.}
@@ -110,6 +106,8 @@ and the (reversed) PC projections, missing weights are set to DefaultWeight
 \item 'CorrelateAllWeightsBySample': the direction is chosen in such a way as to maximize the positive correlation between the expression of genes and the PC corrected weight
 (i.e., PC weights are multiplied by gene weights), missing weights are set to DefaultWeight
 \item 'CorrelateKnownWeightsBySample': as 'CorrelateAllWeightsBySample', but missing weights are set to 0
+\item 'UseMeanExpressionAllWeights': Only looking at the x% of most extreme gene weights. Then multiplying by corresponding mean expression across samples (scaled) and sum results for each gene. If negative, change sign.
+\item 'UseMeanExpressionKnownWeights': as 'UseMeanExpressionAllWeights', but missing weights are set to 0
 }
 If 'CorrelateAllWeights', 'CorrelateKnownWeights', 'CorrelateAllWeightsBySample' or 'CorrelateKnownWeightsBySample' are used
 and GroupPCSign is TRUE, the correlations will be computed on the groups defined by Grouping.}
@@ -144,8 +142,6 @@ to orient the principal components. Can be "pearson", "kendall", or "spearman".}
 
 \item{ShowParallelPB}{boolean, should the progress bar be displayed when using parallel processing ? Note that the
 progress bar is displayed via the pbapply package. This may slow down the computation, especially when using FORK clusters.}
-
-\item{ShiftedAsOverdispersed}{boolean, do you want ROMA to consider shifted gene sets as overdispersed ? Available only if FixedCenter is TRUE}
 
 \item{OutlierRarelyFoundThr}{numeric scalar, the minimum number of pathways in which a gene has to be found to potentially be considered as an outlier}
 
