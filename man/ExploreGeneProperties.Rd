@@ -45,6 +45,3 @@ If Groups are supplied, also shows potential significant differences between gro
 \description{
 Plot several plots to investigate a specific gene
 }
-\examples{
-
-}

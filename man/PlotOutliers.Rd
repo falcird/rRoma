@@ -32,6 +32,3 @@ PlotOutliers(
 \description{
 Plot several plots to investigate outliers
 }
-\examples{
-
-}

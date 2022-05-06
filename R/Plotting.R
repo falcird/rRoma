@@ -684,7 +684,6 @@ PlotPCProjections <- function(RomaData, Selected = NULL, PlotPCProj = 'Points'){
 #' @export
 #'
 #' @examples
-#' 
 ExploreGeneProperties <- function(
   RomaData,
   GeneName,
@@ -1010,7 +1009,6 @@ ExploreGeneProperties <- function(
 #' @export
 #'
 #' @examples
-#' 
 PlotOutliers <- function(
   RomaData,
   ExpressionMatrix,
