@@ -8,11 +8,8 @@ GlobalCompareAcrossSamplesGenesets(
   RomaData,
   Groups,
   Selected = NULL,
-  TestMode = "Aov+Tuk",
-  TestPV1 = 0.05,
-  TestPV2 = 0.05,
-  PlotDiag = FALSE,
-  PlotXGSDiff = FALSE
+  TestMode = "Aov",
+  PlotDiag = FALSE
 )
 }
 \arguments{
@@ -22,15 +19,9 @@ GlobalCompareAcrossSamplesGenesets(
 
 \item{Selected}{Genesets used to perform the analysis}
 
-\item{TestMode}{string, the type of statistical methodology to assess sample difference. Currently only ANOVA + Tukey is implemented ("Aov+Tuk")}
-
-\item{TestPV1}{numeric between 0 and 1, the threshold PV for the initial test (ANOVA)}
-
-\item{TestPV2}{numeric between 0 and 1, the threshold PV for difference test (Tukey)}
+\item{TestMode}{string, the type of statistical methodology to assess sample difference. Currently only ANOVA ("Aov") is available}
 
 \item{PlotDiag}{boolean, should diagnostic plot be displayed?}
-
-\item{PlotXGSDiff}{boolean, should all significant differences by considered?}
 }
 \value{
 
