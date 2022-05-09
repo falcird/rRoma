@@ -1140,7 +1140,7 @@ PlotOutliers <- function(
         ggplot2::scale_color_manual(breaks = to_plot_unique$Status, values = as.character(to_plot_unique$Color)) +
         ggplot2::ggtitle(RomaData$ModuleSummary[[i]]$ModuleName) +
         ggplot2::geom_hline(yintercept=0) + ggplot2::geom_vline(xintercept=0) +
-        ggplot2::geom_text(aes(label=ifelse(Status %in% c("Kept_%_outliers", "Outlier", "Kept_Fisher", "Kept_Counts"),as.character(Genes),'')),hjust=0,vjust=0)
+        ggplot2::geom_text(ggplot2::aes(label=ifelse(Status %in% c("Kept_%_outliers", "Outlier", "Kept_Fisher", "Kept_Counts"),as.character(Genes),'')),hjust=0,vjust=0)
         
         print(p)
 
